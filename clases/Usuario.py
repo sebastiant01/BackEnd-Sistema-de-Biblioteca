@@ -8,7 +8,7 @@ class Usuario:
         libros_prestados (list): Lista de libros que actualmente tiene el usuario prestados.
     """
 
-    def __init__(self, nombre: str, DNI: int, libros_prestados: list):
+    def __init__(self, nombre: str, DNI: str, libros_prestados: list[Libro]):
         self.nombre = nombre
         self.DNI = DNI
         self.libros_prestados = libros_prestados
