@@ -54,7 +54,24 @@ class Libro:
         self.editorial = editorial
         self.unidades = unidades
         self.isbn = isbn
-        self.disponible = True
+        self.disponible = True if unidades > 0 else False 
+    def imprimir_datos(self):
+        print(f"El título del libro es {self.titulo} y su autor es {self.autor}")    
+    
+    def prestar(self):
+        """
+        Reduce en 1 la cantidad de unidades si hay disponibles
+        Si las unidades llegan a 0, el libro deja de estar disponible
+        """
+        if self.unidades > 0:
+            self.unidades -= 1
+
+            if self.unidades == 0:
+                self.disponible = False
+
+            print(f"Libro '{self.titulo}' prestado correctamente.s")
+        else:
+            print("No hay unidades disponibles para prestar.")
 
     def __str__(self) -> str:
         """
@@ -74,3 +91,4 @@ class Libro:
             f"Unidades: {self.unidades}, "
             f"ISBN: {self.isbn}]"
         )
+    
