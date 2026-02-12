@@ -1,5 +1,6 @@
 import abc
 import hashlib
+from Libro import Libro
 
 
 class Usuario(abc.ABC):
