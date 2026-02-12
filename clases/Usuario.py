@@ -151,11 +151,12 @@ class Cliente(Usuario):
                 n += 1
             opcion = int(input("Ingrese una opción: "))
             try:
-                lib = self.libros_prestados[opcion]
+                lib = self.libros_prestados[opcion - 1]
                 lib.disponible = True
                 lib.unidades += 1
-                del self.libros_prestados[opcion]
+                del self.libros_prestados[opcion - 1]
             except Exception:
+                print("Por favor ingrese una opción válida.")
                 continue
             print(f"El libro '{lib.titulo}' fue devuelto con éxito")
             break
