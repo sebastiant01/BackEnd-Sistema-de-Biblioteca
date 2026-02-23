@@ -67,5 +67,5 @@ class Libro(MaterialBiblioteca):
             str:
                 Cadena con información completa del libro.
         """
-        base: str = super().__str__
-        return f"{base}" f"{self.genero} | {self.isbn}"
+        base: str = super().__str__()
+        return f"{base} | {self.genero} | {self.isbn}"
