@@ -62,3 +62,18 @@ class Revista(MaterialBiblioteca):
             periodicidad (str):
                 Frecuencia de publicación.
         """
+        super().__init__(codigo, titulo, autor, fecha, cantidad_paginas, unidades)
+        self.categoria: str = categoria
+        self.numero_edicion: int = numero_edicion
+        self.periodicidad: str = periodicidad
+
+    def __str__(self) -> str:
+        """
+        Devuelve una representación detallada de la revista.
+
+        Returns:
+            str:
+                Cadena con información completa de la revista.
+        """
+        base: str = super().__str__()
+        return f"{base} | {self.categoria} | Edición {self.numero_edicion} | {self.periodicidad}"
