@@ -55,3 +55,18 @@ class Periodico(MaterialBiblioteca):
             ciudad_publicacion (str):
                 Ciudad donde se publica.
         """
+        super().__init__(codigo, titulo, autor, fecha, cantidad_paginas, unidades)
+
+        self.seccion_principal: str = seccion_principal
+        self.ciudad_publicacion: str = ciudad_publicacion
+
+    def __str__(self) -> str:
+        """
+        Devuelve una representación detallada del periódico.
+
+        Returns:
+            str:
+                Cadena con información completa del periódico.
+        """
+        base: str = super().__str__()
+        return f"{base} | {self.seccion_principal} | {self.ciudad_publicacion}"
