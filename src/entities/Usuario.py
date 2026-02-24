@@ -61,7 +61,7 @@ class Cliente(Usuario):
         super().__init__(nombre, DNI)
         self.material_prestado = material_prestado
 
-    def devolver_libro(self) -> None:
+    def devolver_material(self) -> None:
         """
         Método que le permite al cliente devolver un material de su lista de materiales prestados.
 
@@ -72,9 +72,9 @@ class Cliente(Usuario):
             n = 1
             size = len(self.material_prestado)
             for codigo in self.material_prestado:
-                libro = Biblioteca.buscar_por_codigo(codigo)
-                if isinstance(libro, MaterialBiblioteca):
-                    print(f"Opción {n}: {libro.titulo}, {libro.autor}")
+                material = Biblioteca.buscar_por_codigo(codigo)
+                if isinstance(material, MaterialBiblioteca):
+                    print(f"Opción {n}: {material.titulo}, {material.autor}")
                     n += 1
                 else:
                     continue
@@ -109,7 +109,7 @@ class Cliente(Usuario):
             None
         """
         print(
-            f"Nombre: {self.nombre}, DNI: {self.DNI}, Libros prestados actualmente: {self.material_prestado}"
+            f"Nombre: {self.nombre}, DNI: {self.DNI}, materiales prestados actualmente: {self.material_prestado}"
         )
 
 
