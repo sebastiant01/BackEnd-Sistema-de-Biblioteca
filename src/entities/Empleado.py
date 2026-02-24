@@ -8,20 +8,20 @@ class Empleado(Usuario):
 
     Attributes:
         nombre (str): Nombre del empleado.
-        DNI (str): DNI del empleado.
+        dni (str): DNI del empleado.
         usuario (str): Usuario de inicio de sesión.
         contrasena (str): Contraseña del empleado.
     """
 
-    def __init__(self, nombre, DNI) -> None:
+    def __init__(self, nombre, dni) -> None:
         """
         Inicializa una nueva instancia de un usuario de tipo empleado.
 
         Args:
             nombre (str): Nombre del empleado.
-            DNI (str): DNI del empleado.
+            dni (str): DNI del empleado.
         """
-        super().__init__(nombre, DNI)
+        super().__init__(nombre, dni)
 
     def mostrar_data(self) -> None:
         """
@@ -30,4 +30,4 @@ class Empleado(Usuario):
         Returns:
             None
         """
-        print(f"Nombre: {self.nombre}, DNI: {self.DNI}")
+        print(f"Nombre: {self.nombre}, DNI: {self.dni}")

@@ -10,23 +10,23 @@ class Cliente(Usuario):
 
     Attributes:
         nombre (str): Nombre del usuario. (Heredado)
-        DNI (str): DNI del usuario. (Heredado)
+        dni (str): DNI del usuario. (Heredado)
         usuario (str): Usuario de inicio de sesión. (Heredado)
         contrasena (str): Contraseña del usuario. (Heredado)
         material_prestado (list[str]): Material que el usuario tiene prestado. Es una lista de
             strings, cada elemento siendo el código de un material bibliográfico
     """
 
-    def __init__(self, nombre: str, DNI: str, material_prestado: list[str]):
+    def __init__(self, nombre: str, dni: str, material_prestado: list[str]):
         """
         Inicializa una nueva instancia de un usuario de tipo cliente.
 
         Args:
             nombre (str): Nombre del cliente.
-            DNI (str): DNI del cliente.
+            dni (str): DNI del cliente.
             material_prestado (str): Lista de materiales prestados por el cliente actualmente.
         """
-        super().__init__(nombre, DNI)
+        super().__init__(nombre, dni)
         self.material_prestado = material_prestado
 
     def devolver_material(self, Biblioteca: Biblioteca) -> None:
@@ -111,5 +111,5 @@ class Cliente(Usuario):
             None
         """
         print(
-            f"Nombre: {self.nombre}, DNI: {self.DNI}, materiales prestados actualmente: {self.material_prestado}"
+            f"Nombre: {self.nombre}, DNI: {self.dni}, materiales prestados actualmente: {self.material_prestado}"
         )

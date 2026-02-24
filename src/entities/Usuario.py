@@ -9,21 +9,21 @@ class Usuario(ABC):
 
     Attributes:
         nombre (str): Nombre del usuario.
-        DNI (str): DNI del usuario.
+        dni (str): DNI del usuario.
         usuario (str): Usuario de inicio de sesión.
         contrasena (str): Contraseña del usuario.
     """
 
-    def __init__(self, nombre: str, DNI: str):
+    def __init__(self, nombre: str, dni: str):
         """
         Inicializa una nueva instancia de Biblioteca.
 
         Args:
             nombre (str): Nombre del usuario.
-            DNI (str): DNI del usuario.
+            dni (str): DNI del usuario.
         """
         self.nombre = nombre
-        self.DNI = DNI
+        self.dni = dni
 
     @abstractmethod
     def mostrar_data(self):
