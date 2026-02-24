@@ -45,7 +45,7 @@ class Cliente(Usuario):
         DNI (str): DNI del usuario. (Heredado)
         usuario (str): Usuario de inicio de sesión. (Heredado)
         contrasena (str): Contraseña del usuario. (Heredado)
-        material_prestado (str): Material que el usuario tiene prestado. Es una lista de
+        material_prestado (list[str]): Material que el usuario tiene prestado. Es una lista de
             strings, cada elemento siendo el código de un material bibliográfico
     """
 
@@ -100,6 +100,40 @@ class Cliente(Usuario):
                     continue
 
         return
+
+    def prestar_material(self) -> None:
+        """
+        Solicita al usuario el código de un material, verifica que exista y unidades
+        Reduce en 1 la cantidad de unidades si hay disponibles
+        Si las unidades llegan a 0, el libro deja de estar disponible
+        """
+        while True:
+            print("Ingrese el código del material que quiera prestar")
+            print(
+                "Si no lo conoce, ingrese 'salir' y consulte el material para ver el código"
+            )
+            codigo = input().strip()
+            if codigo.lower() == "salir":
+                return
+
+            material = Biblioteca.buscar_por_codigo(codigo)
+            if isinstance(material, MaterialBiblioteca):
+
+                if material.unidades > 0:
+                    material.unidades -= 1
+
+                    if material.unidades == 0:
+                        material.disponible = False
+
+                    print(f"Material '{material.titulo}' prestado correctamente.")
+                    self.material_prestado.append(material.codigo)
+                    return
+                else:
+                    print("No hay unidades disponibles para prestar. Intente con otro")
+                    continue
+            else:
+                print("No se encontró el material, intente de nuevo")
+                continue
 
     def mostrar_data(self) -> None:
         """
