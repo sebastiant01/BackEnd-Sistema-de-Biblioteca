@@ -1,4 +1,4 @@
-from MaterialBiblioteca import MaterialBiblioteca
+from src.entities.MaterialBiblioteca import MaterialBiblioteca
 
 
 class Periodico(MaterialBiblioteca):
