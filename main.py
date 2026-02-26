@@ -9,10 +9,94 @@ from src.entities.Cliente import Cliente
 from src.entities.Empleado import Empleado
 from src.entities.Biblioteca import Biblioteca
 from src.entities.MaterialBiblioteca import MaterialBiblioteca
+from src.entities.Libro import Libro
+from src.entities.Revista import Revista
+from src.entities.Periodico import Periodico
+
+# ACLARACIÓN: En este menú, sólo estaremos usando la clase "Cliente" en vez de "Empleado",
+# debido a que decidimos simplificar el flujo de ejecución, y tiene casi las mismas funcionalidades
+# que cliente (EN ESTE CASO), por lo cual sólo se usará "Cliente.py".s
+
 
 # Variables globales (snake_case según PEP 8)
 usuarios_registrados: dict[str, Usuario] = {}
 biblioteca_principal = Biblioteca("Default")
+
+# Estas instancias de clases son creadas predeterminadamente para que
+# hayan materiales disponibles y se puedan ejecutar correctamente las
+# operaciones.
+libro1 = Libro(
+    codigo="L001",
+    titulo="El Principito",
+    autor="Antoine de Saint-Exupéry",
+    fecha="1943",
+    genero="Ficción",
+    cantidad_paginas=96,
+    unidades=5,
+    isbn="978-0156012195",
+)
+
+libro2 = Libro(
+    codigo="L002",
+    titulo="Clean Code",
+    autor="Robert C. Martin",
+    fecha="2008",
+    genero="Programación",
+    cantidad_paginas=464,
+    unidades=3,
+    isbn="978-0132350884",
+)
+
+periodico1 = Periodico(
+    codigo="P001",
+    titulo="El Tiempo",
+    autor="Editorial El Tiempo",
+    fecha="2026-02-25",
+    cantidad_paginas=40,
+    unidades=20,
+    seccion_principal="Política",
+    ciudad_publicacion="Bogotá",
+)
+
+revista1 = Revista(
+    codigo="R001",
+    titulo="National Geographic",
+    autor="National Geographic Society",
+    fecha="2026-01",
+    cantidad_paginas=120,
+    unidades=7,
+    categoria="Ciencia",
+    numero_edicion=305,
+    periodicidad="Mensual",
+)
+
+biblioteca_principal.registrar_material(
+    codigo=libro1.codigo,
+    autor=libro1.autor,
+    titulo=libro1.titulo,
+    material=libro1,
+)
+
+biblioteca_principal.registrar_material(
+    codigo=libro2.codigo,
+    autor=libro2.autor,
+    titulo=libro2.titulo,
+    material=libro2,
+)
+
+biblioteca_principal.registrar_material(
+    codigo=periodico1.codigo,
+    autor=periodico1.autor,
+    titulo=periodico1.titulo,
+    material=periodico1,
+)
+
+biblioteca_principal.registrar_material(
+    codigo=revista1.codigo,
+    autor=revista1.autor,
+    titulo=revista1.titulo,
+    material=revista1,
+)
 
 
 def verificar_entrada_vacia(entrada: str) -> bool:
