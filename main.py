@@ -3,7 +3,6 @@ Módulo principal del Sistema de Biblioteca.
 Gestiona el flujo de interacción con el usuario, menús y autenticación.
 """
 
-import sys
 from src.entities.Usuario import Usuario
 from src.entities.Cliente import Cliente
 from src.entities.Empleado import Empleado
@@ -17,8 +16,6 @@ from src.entities.Periodico import Periodico
 # debido a que decidimos simplificar el flujo de ejecución, y tiene casi las mismas funcionalidades
 # que cliente (EN ESTE CASO), por lo cual sólo se usará "Cliente.py".s
 
-
-# Variables globales (snake_case según PEP 8)
 usuarios_registrados: dict[str, Usuario] = {}
 biblioteca_principal = Biblioteca("Default")
 
@@ -114,6 +111,35 @@ def verificar_entrada_vacia(entrada: str) -> bool:
     return False
 
 
+def validar_fecha(fecha: str) -> bool:
+    """
+    Verifica si una cadena representa una fecha válida en formato DD/MM/AAAA.
+
+    Args:
+        fecha (str): La fecha a validar.
+
+    Returns:
+        bool: True si la fecha cumple el formato DD/MM/AAAA y el rango básico
+        de día y mes (no contempla años bisiestos), False en caso contrario.
+    """
+    partes = fecha.split("/")
+
+    if len(partes) != 3:
+        return False
+
+    dia, mes, anio = partes
+
+    if not (dia.isdigit() and mes.isdigit() and anio.isdigit()):
+        return False
+
+    if not (len(dia) == 2 and len(mes) == 2 and len(anio) == 4):
+        return False
+
+    dias_por_mes = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    return 1 <= int(mes) <= 12 and 1 <= int(dia) <= dias_por_mes[int(mes)]
+
+
 def verificar_usuario_activo(usuario: Usuario) -> str:
     """
     Determina el tipo de rol del usuario (Cliente o Empleado).
@@ -175,7 +201,6 @@ def registrarse() -> Cliente | None:
             print("El nombre no puede estar vacío, vuelva a intentar")
             continue
 
-        # Nota: Se asume que Cliente recibe (nombre, dni, lista_materiales)
         user = Cliente(nombre, dni, [])
         usuarios_registrados[dni] = user
 
@@ -218,27 +243,40 @@ def menu_consulta() -> None:
         print("3. Buscar por título")
         print("4. Dejar de consultar")
 
-        opcion = input()
+        opcion: str = input()
 
         match opcion:
             case "1":
-                autor = input("Ingrese el nombre del autor: ")
-                material_autor = biblioteca_principal.buscar_por_autor(autor)
-                # Iteramos para mostrar cada coincidencia
+                autor: str = input("Ingrese el nombre del autor: ")
+                material_autor: list[MaterialBiblioteca] | str = (
+                    biblioteca_principal.buscar_por_autor(autor)
+                )
+
+                if type(material_autor) == str:
+                    print(material_autor.__str__())
+                    continue
+
                 for material in material_autor:
                     print(material.__str__())
                 continue
 
             case "2":
-                codigo = input("Ingrese el código del material: ")
-                material_codigo = biblioteca_principal.buscar_por_codigo(codigo)
-                # Asumimos que buscar_por_codigo retorna un objeto único o manejable
+                codigo: str = input("Ingrese el código del material: ").strip()
+                material_codigo: list[MaterialBiblioteca] | str = (
+                    biblioteca_principal.buscar_por_codigo(codigo)
+                )
                 print(material_codigo.__str__())
                 continue
 
             case "3":
-                titulo = input("Ingrese el título del material: ")
-                material_titulo = biblioteca_principal.buscar_por_titulo(titulo)
+                titulo: str = input("Ingrese el título del material: ").strip()
+                material_titulo: list[MaterialBiblioteca] | str = (
+                    biblioteca_principal.buscar_por_titulo(titulo)
+                )
+
+                if type(material_titulo) == str:
+                    print(material_titulo.__str__())
+
                 for material in material_titulo:
                     print(material.__str__())
                 continue
@@ -256,33 +294,29 @@ def main() -> None:
     Función principal de ejecución (Entry Point).
     Controla el ciclo de vida de la aplicación.
     """
-    user = None
+    user: Usuario | None = None
 
-    # 1. Bucle de Autenticación
     while True:
         print("Bienvenido al sistema de biblioteca. ¿Se encuentra registrado?")
         opcion = input("(s/n): ").strip().lower()
 
         if opcion == "s":
-            user = iniciar_sesion()
+            user: Usuario | None = iniciar_sesion()
         elif opcion == "n":
-            user = registrarse()
+            user: Usuario | None = registrarse()
         else:
             print("Opción inválida. Por favor intente otra vez")
             continue
 
         if user is None:
             print("Error cargando al usuario o usuario no registrado.")
-            # Dependiendo de la lógica, aquí podrías querer repetir el bucle o salir
-            # Por ahora mantenemos tu flujo: 'continue' vuelve a preguntar
             continue
 
         break
 
-    # 2. Bucle Principal del Menú
     while True:
         mostrar_menu(user)
-        opcion = input("Seleccione una opción: ").strip()
+        opcion: str = input("Seleccione una opción: ").strip()
 
         match opcion:
             case "1":
@@ -290,7 +324,7 @@ def main() -> None:
                 menu_consulta()
 
             case "2":
-                tipo_usuario = verificar_usuario_activo(user)
+                tipo_usuario: str = verificar_usuario_activo(user)
                 if tipo_usuario == "Empleado":
                     print("Error: Sólo los clientes pueden prestar material.")
                     continue
@@ -299,54 +333,66 @@ def main() -> None:
                 user.prestar_material(biblioteca_principal)
 
             case "3":
-                tipo_usuario = verificar_usuario_activo(user)
+                tipo_usuario: str = verificar_usuario_activo(user)
                 if tipo_usuario == "Empleado":
                     print("Error: Sólo los clientes pueden devolver material.")
                     continue
+                if not user.material_prestado:
+                    print("No tiene materiales prestados.")
+                    continue
+
                 print("Devolviendo material...")
                 user.devolver_material(biblioteca_principal)
 
             case "4":
-                tipo_usuario = verificar_usuario_activo(user)
+                tipo_usuario: str = verificar_usuario_activo(user)
                 if tipo_usuario == "Cliente":
                     print("Error: Sólo los empleados pueden registrar material.")
                     continue
 
                 print("Registrando material...")
 
-                # Validación en cascada para registrar
-                codigo = input("Ingrese el código de barras del material: ").strip()
+                codigo: str = input(
+                    "Ingrese el código de barras del material: "
+                ).strip()
                 if verificar_entrada_vacia(codigo):
                     print("Saliendo de registrar material...")
                     continue
 
-                autor = input("Ingrese el autor del material a registrar: ").strip()
+                autor: str = input(
+                    "Ingrese el autor del material a registrar: "
+                ).strip()
                 if verificar_entrada_vacia(autor):
                     print("Saliendo de registrar material...")
                     continue
 
-                titulo = input("Ingrese el título del material a registrar: ").strip()
+                titulo: str = input(
+                    "Ingrese el título del material a registrar: "
+                ).strip()
                 if verificar_entrada_vacia(titulo):
                     print("Saliendo de registrar material...")
                     continue
 
-                fecha = input("Ingrese el año de publicación: ").strip()
-                if verificar_entrada_vacia(fecha):
+                fecha: str = input(
+                    "Ingrese el año de publicación (En formato DD/MM/AAAA): "
+                ).strip()
+                if verificar_entrada_vacia(fecha) and not validar_fecha(fecha):
                     print("Saliendo de registrar material...")
                     continue
 
-                paginas = input("Ingrese el número de páginas del material: ").strip()
+                paginas: int = input(
+                    "Ingrese el número de páginas del material: "
+                ).strip()
                 if verificar_entrada_vacia(paginas) or not paginas.isdigit():
                     print("Dato inválido. Saliendo de registrar material...")
                     continue
 
-                unidades = input("Ingrese las unidades disponibles: ").strip()
+                unidades: int = input("Ingrese las unidades disponibles: ").strip()
                 if verificar_entrada_vacia(unidades) or not unidades.isdigit():
                     print("Dato inválido. Saliendo de registrar material...")
                     continue
 
-                # Creación y registro del material
-                material = MaterialBiblioteca(
+                material: MaterialBiblioteca = MaterialBiblioteca(
                     codigo, titulo, autor, fecha, paginas, unidades
                 )
                 biblioteca_principal.registrar_material(codigo, autor, titulo, material)
@@ -371,6 +417,5 @@ def main() -> None:
     print("Finalizando programa...")
 
 
-# Bloque de ejecución estándar
 if __name__ == "__main__":
     main()
