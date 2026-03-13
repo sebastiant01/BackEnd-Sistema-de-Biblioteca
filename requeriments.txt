@@ -1,0 +1,9 @@
+# --- Base de Datos y ORM ---
+sqlalchemy
+psycopg2-binary
+
+# --- Migraciones ---
+alembic
+
+# --- Variables de Entorno ---
+python-dotenv
