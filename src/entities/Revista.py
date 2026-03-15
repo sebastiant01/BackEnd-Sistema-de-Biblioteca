@@ -1,12 +1,16 @@
 """
 Modelo ORM para la entidad Revista.
  
-Representa una revista como tipo de material en el sistema de biblioteca,
-hereda los campos de auditoría y se relaciona con MaterialBiblioteca.
+Representa una revista como especialización de MaterialBiblioteca
+en el sistema de biblioteca. Incluye columnas de auditoría con
+referencia a la entidad Usuario.
 """
+ 
+import uuid
  
 from database.config import Base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
  
@@ -17,25 +21,25 @@ class Revista(Base):
     __tablename__ = "revistas"
  
     id_material = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("materiales_biblioteca.id_material"),
         primary_key=True,
+        default=uuid.uuid4,
         index=True,
     )
-    volumen = Column(Integer, nullable=True)
-    numero_edicion = Column(Integer, nullable=True)
+    volumen = Column(Integer, nullable=False)
+    numero_edicion = Column(Integer, nullable=False)
  
+  
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
  
     id_usuario_creacion = Column(
-        Integer, ForeignKey("usuarios.id_usuario"), nullable=False
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
     id_usuario_edita = Column(
-        Integer, ForeignKey("usuarios.id_usuario"), nullable=True
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
     )
- 
-    material = relationship("MaterialBiblioteca", back_populates="revista")
  
     usuario_creacion = relationship(
         "Usuario",
@@ -51,7 +55,6 @@ class Revista(Base):
             f"<Revista(id_material={self.id_material}, "
             f"volumen={self.volumen}, numero_edicion={self.numero_edicion})>"
         )
- 
 
 
 
