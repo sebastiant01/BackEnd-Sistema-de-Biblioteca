@@ -33,5 +33,13 @@ class Usuario(Base, Auditoria):
     )
 
     prestamo = relationship(
-        "Prestamo", back_populates="propietario", cascade="all, delete-orphan"
+        "Prestamo", back_populates="usuario_presta", cascade="all, delete-orphan"
+    )
+
+    reserva = relationship(
+        "Reserva", back_populates="usuario_reserva", cascade="all, delete-orphan"
+    )
+
+    sanciones = relationship(
+        "Sancion", back_populates="usuario_sancionado", cascade="all, delete-orphan"
     )
