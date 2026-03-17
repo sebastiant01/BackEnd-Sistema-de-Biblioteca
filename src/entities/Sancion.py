@@ -1,39 +1,31 @@
 """
-Modelo ORM para la entidad Reserva.
+Modelo ORM para la entidad Sancion.
 
-Representa una reserva de material bibliográfico realizada por un usuario
-en el sistema de biblioteca. Incluye columnas de auditoría con
-referencia a la entidad Usuario.
+Representa una sanción aplicada a un usuario del sistema de biblioteca
+como consecuencia de un préstamo no devuelto o devuelto tardíamente.
+Incluye columnas de auditoría con referencia a la entidad Usuario.
 """
 
 import uuid
-import enum
 
 from database.config import Base
-from sqlalchemy import Column, Date, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 
-class EstadoReserva(enum.Enum):
-    pendiente: str = "pendiente"
-    completada: str = "completada"
-    cancelada: str = "cancelada"
+class Sancion(Base):
+    """Modelo de Sancion"""
 
+    __tablename__ = "sanciones"
 
-class Reserva(Base):
-    """Modelo de Reserva"""
-
-    __tablename__ = "reservas"
-
-    id_reserva = Column(
+    id_sancion = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    fecha_reserva = Column(Date, nullable=False)
-    estado_reserva = Column(
-        Enum(EstadoReserva), nullable=False, default=EstadoReserva.pendiente
-    )
+    fecha_inicio = Column(Date, nullable=False)
+    dias_sancion = Column(Integer, nullable=False)
+    motivo = Column(String(200), nullable=False)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
@@ -41,10 +33,8 @@ class Reserva(Base):
     id_usuario = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
-    id_material = Column(
-        UUID(as_uuid=True),
-        ForeignKey("materiales_biblioteca.id_material"),
-        nullable=False,
+    id_prestamo = Column(
+        UUID(as_uuid=True), ForeignKey("prestamos.id_prestamo"), nullable=False
     )
     id_usuario_creacion = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
@@ -57,9 +47,9 @@ class Reserva(Base):
         "Usuario",
         foreign_keys=[id_usuario],
     )
-    material = relationship(
-        "MaterialBiblioteca",
-        foreign_keys=[id_material],
+    prestamo = relationship(
+        "Prestamo",
+        foreign_keys=[id_prestamo],
     )
     usuario_creacion = relationship(
         "Usuario",
@@ -72,6 +62,6 @@ class Reserva(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Reserva(id_reserva={self.id_reserva}, "
-            f"estado='{self.estado_reserva}', fecha='{self.fecha_reserva}')>"
+            f"<Sancion(id_sancion={self.id_sancion}, "
+            f"dias_sancion={self.dias_sancion}, motivo='{self.motivo}')>"
         )
