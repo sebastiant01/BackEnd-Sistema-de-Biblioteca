@@ -2,7 +2,7 @@ import uuid
 import enum
 from typing import Optional
 
-from database.config import Base
+from src.database.config import Base
 from sqlalchemy import Column, Date, DateTime, Boolean, String, Text, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship

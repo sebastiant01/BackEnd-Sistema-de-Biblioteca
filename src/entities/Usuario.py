@@ -1,14 +1,15 @@
 import uuid
 import os
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from sqlalchemy import Column, String, CheckConstraint, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.database.config import Base
 from src.entities.Auditoria import Auditoria
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Usuario(Base, Auditoria):
@@ -56,9 +57,11 @@ class Usuario(Base, Auditoria):
     contrasena = Column(String(100), nullable=False)
     rol = Column(String, nullable=False, default="Usuario")
 
-    __table_args__ = CheckConstraint(
-        'rol IN ("Admin", "Usuario")',
-        name="CK_Rol",
+    __table_args__ = (
+        CheckConstraint(
+            "rol IN ('Admin', 'Usuario')",
+            name="CK_Rol",
+        ),
     )
 
     prestamo = relationship(

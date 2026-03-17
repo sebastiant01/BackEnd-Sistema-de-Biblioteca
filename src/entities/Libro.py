@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from entities.MaterialBiblioteca import MaterialBiblioteca, TipoMaterial
+from src.entities.MaterialBiblioteca import MaterialBiblioteca, TipoMaterial
 
 
 class Libro(MaterialBiblioteca):

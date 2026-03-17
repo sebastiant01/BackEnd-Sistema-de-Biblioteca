@@ -1,6 +1,9 @@
 import uuid
 import os
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from sqlalchemy import Column, String, CheckConstraint, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -8,8 +11,6 @@ from sqlalchemy.sql import func
 from src.database.config import Base
 from src.entities.MaterialBiblioteca import MaterialBiblioteca
 from src.entities.Auditoria import Auditoria
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Autor(Base, Auditoria):

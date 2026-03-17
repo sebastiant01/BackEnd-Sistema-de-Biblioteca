@@ -1,6 +1,9 @@
 import uuid
 import os
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from sqlalchemy import Column, ForeignKey, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -9,8 +12,6 @@ from src.database.config import Base
 from src.entities.Auditoria import Auditoria
 from src.entities.Usuario import Usuario
 from src.entities.MaterialBiblioteca import MaterialBiblioteca
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Prestamo(Base, Auditoria):

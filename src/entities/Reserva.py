@@ -9,7 +9,7 @@ referencia a la entidad Usuario.
 import uuid
 import enum
 
-from database.config import Base
+from src.database.config import Base
 from sqlalchemy import Column, Date, DateTime, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
