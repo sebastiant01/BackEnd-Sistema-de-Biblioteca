@@ -71,6 +71,8 @@ class MaterialBiblioteca(Base):
 
     autor = relationship("Autor", back_populates="materiales_biblioteca")
 
+    prestamo = relationship("Prestamo", back_populates="material_prestado")
+
     usuario_crea = relationship(
         "Usuario",
         foreign_keys=[id_usuario_crea],

@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 class Usuario(Base, Auditoria):
 
-    __tablename__ = "Usuarios"
+    __tablename__ = "usuarios"
 
     id_usuario = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
@@ -43,3 +43,12 @@ class Usuario(Base, Auditoria):
     sanciones = relationship(
         "Sancion", back_populates="usuario_sancionado", cascade="all, delete-orphan"
     )
+
+    def __repr__(self) -> str:
+        return (
+            f"<Usuario(id_usuario={self.id_usuario}, "
+            f"nombre='{self.nombre}', apellido='{self.apellido}', "
+            f"documento='{self.documento}', email='{self.email}', "
+            f"telefono='{self.telefono}', username='{self.username}', "
+            f"rol='{self.rol}')>"
+        )
