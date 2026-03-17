@@ -30,7 +30,8 @@ class Reserva(Base):
     id_reserva = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    fecha_reserva = Column(Date, nullable=False, server_default=func.current_date())
+   
+    fecha_reserva = Column(Date, nullable=False)
     estado_reserva = Column(
         Enum(EstadoReserva), nullable=False, default=EstadoReserva.pendiente
     )
