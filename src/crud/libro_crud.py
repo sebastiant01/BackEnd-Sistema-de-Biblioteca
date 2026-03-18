@@ -1,14 +1,17 @@
 """
 Operaciones CRUD para Libro
+
+Gestiona la creación, lectura, actualización y eliminación de libros,
+teniendo en cuenta la herencia por tabla unida con MaterialBiblioteca.
 """
 
 from typing import List, Optional
 from uuid import UUID
-
 from datetime import date
-from entities.Libro import Libro
+
 from sqlalchemy.orm import Session
-from entities.MaterialBiblioteca import TipoMaterial
+
+from src.entities.Libro import Libro
 
 
 class LibroCRUD:
