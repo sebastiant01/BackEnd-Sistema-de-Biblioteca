@@ -2,7 +2,8 @@ import uuid
 import enum
 from typing import Optional
 
-from database.config import Base
+from src.database.config import Base
+from src.entities.Auditoria import Auditoria
 from sqlalchemy import Column, Date, DateTime, Boolean, String, Text, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -17,7 +18,7 @@ class TipoMaterial(enum.Enum):
     periodico: str = "periodico"
 
 
-class MaterialBiblioteca(Base):
+class MaterialBiblioteca(Base, Auditoria):
     """
     Modelo ORM para la entidad MaterialBiblioteca.
 
@@ -62,22 +63,20 @@ class MaterialBiblioteca(Base):
         UUID(as_uuid=True), ForeignKey("autores.id_autor"), nullable=False
     )
 
-    id_usuario_crea: UUID = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
-    )
-    id_usuario_edita: Optional[UUID] = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
+    autor = relationship(
+        "Autor",
+        back_populates="materiales_biblioteca",
+        foreign_keys="[MaterialBiblioteca.id_autor]",
     )
 
-    autor = relationship("Autor", back_populates="materiales_biblioteca")
-
-    usuario_crea = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_crea],
+    prestamo = relationship(
+        "Prestamo",
+        back_populates="material_prestado",
+        foreign_keys="[Prestamo.id_material]",
     )
-    usuario_edita = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_edita],
+
+    reserva = relationship(
+        "Reserva", back_populates="material", foreign_keys="[Reserva.id_material]"
     )
 
     __mapper_args__ = {"polymorphic_on": tipo_material, "polymorphic_identity": None}
