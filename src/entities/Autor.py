@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import Column, String, CheckConstraint, DateTime
+from sqlalchemy import Column, String, CheckConstraint, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -43,6 +43,7 @@ class Autor(Base, Auditoria):
     nombre_autor: str = Column(String(50), nullable=False)
     apellido_autor: str = Column(String(50), nullable=True)
     nacionalidad: str = Column(String(50), nullable=True)
+    activo: bool = Column(Boolean, nullable=False)
 
     materiales_biblioteca = relationship(
         "MaterialBiblioteca",
