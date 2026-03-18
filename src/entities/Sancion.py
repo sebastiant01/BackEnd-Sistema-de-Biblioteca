@@ -21,18 +21,18 @@ class Sancion(Base, Auditoria):
 
     __tablename__ = "sanciones"
 
-    id_sancion = Column(
+    id_sancion: UUID = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    fecha_inicio = Column(Date, nullable=False)
-    dias_sancion = Column(Integer, nullable=False)
-    motivo = Column(String(200), nullable=False)
+    fecha_inicio: Date = Column(Date, nullable=False)
+    dias_sancion: int = Column(Integer, nullable=False)
+    motivo: str = Column(String(200), nullable=False)
 
-    id_usuario = Column(
+    id_usuario: UUID = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
 
-    id_prestamo = Column(
+    id_prestamo: UUID = Column(
         UUID(as_uuid=True), ForeignKey("prestamos.id_prestamo"), nullable=False
     )
 

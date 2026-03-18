@@ -28,18 +28,18 @@ class Reserva(Base, Auditoria):
 
     __tablename__ = "reservas"
 
-    id_reserva = Column(
+    id_reserva: UUID = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    fecha_reserva = Column(Date, nullable=False)
-    estado_reserva = Column(
+    fecha_reserva: Date = Column(Date, nullable=False)
+    estado_reserva: Enum = Column(
         Enum(EstadoReserva), nullable=False, default=EstadoReserva.pendiente
     )
 
-    id_usuario = Column(
+    id_usuario: UUID = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
-    id_material = Column(
+    id_material: UUID = Column(
         UUID(as_uuid=True),
         ForeignKey("materiales_biblioteca.id_material"),
         nullable=False,

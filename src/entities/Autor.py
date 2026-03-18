@@ -37,12 +37,12 @@ class Autor(Base, Auditoria):
 
     __tablename__ = "autores"
 
-    id_autor = Column(
+    id_autor: UUID = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    nombre_autor = Column(String(50), nullable=False)
-    apellido_autor = Column(String(50), nullable=True)
-    nacionalidad = Column(String(50), nullable=True)
+    nombre_autor: str = Column(String(50), nullable=False)
+    apellido_autor: str = Column(String(50), nullable=True)
+    nacionalidad: str = Column(String(50), nullable=True)
 
     materiales_biblioteca = relationship(
         "MaterialBiblioteca",

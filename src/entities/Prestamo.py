@@ -4,14 +4,12 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import Column, ForeignKey, DateTime, String
+from sqlalchemy import Column, ForeignKey, Date, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from src.database.config import Base
 from src.entities.Auditoria import Auditoria
-from src.entities.Usuario import Usuario
-from src.entities.MaterialBiblioteca import MaterialBiblioteca
 
 
 class Prestamo(Base, Auditoria):
@@ -42,15 +40,15 @@ class Prestamo(Base, Auditoria):
 
     __tablename__ = "prestamos"
 
-    id_prestamo = Column(
+    id_prestamo: UUID = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"))
+    id_usuario: UUID = Column(UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"))
     usuario_prestamo = relationship(
         "Usuario", back_populates="prestamo", foreign_keys="[Prestamo.id_usuario]"
     )
 
-    id_material = Column(
+    id_material: UUID = Column(
         UUID(as_uuid=True), ForeignKey("materiales_biblioteca.id_material")
     )
     material_prestado = relationship(
@@ -59,8 +57,8 @@ class Prestamo(Base, Auditoria):
         foreign_keys="[Prestamo.id_material]",
     )
 
-    fecha_prestamo = Column(DateTime(timezone=True), server_default=func.now())
-    estado = Column(String, nullable=False, default="Activa")
+    fecha_prestamo: Date = Column(Date, server_default=func.now())
+    estado: str = Column(String, nullable=False, default="Activa")
 
     sancion_involucrada = relationship(
         "Sancion", back_populates="prestamo", foreign_keys="[Sancion.id_prestamo]"

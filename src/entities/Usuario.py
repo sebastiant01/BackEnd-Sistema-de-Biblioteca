@@ -44,17 +44,17 @@ class Usuario(Base, Auditoria):
 
     __tablename__ = "usuarios"
 
-    id_usuario = Column(
+    id_usuario: UUID = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    nombre = Column(String(25), nullable=False)
-    apellido = Column(String(25), default="Doe")
-    documento = Column(String(14), nullable=False, unique=True, index=True)
-    email = Column(String(30), nullable=False)
-    telefono = Column(String, nullable=False)
-    username = Column(String, nullable=False)
-    contrasena = Column(String(100), nullable=False)
-    rol = Column(String, nullable=False, default="Usuario")
+    nombre: str = Column(String(25), nullable=False)
+    apellido: str = Column(String(25), default="Doe")
+    documento: str = Column(String(14), nullable=False, unique=True, index=True)
+    email: str = Column(String(30), nullable=False)
+    telefono: str = Column(String, nullable=False)
+    username: str = Column(String, nullable=False)
+    contrasena: str = Column(String(100), nullable=False)
+    rol: str = Column(String, nullable=False, default="Usuario")
 
     __table_args__ = (
         CheckConstraint(

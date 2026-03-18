@@ -20,13 +20,13 @@ class Revista(MaterialBiblioteca):
 
     __tablename__ = "revistas"
 
-    id_revista = Column(
+    id_revista: UUID = Column(
         UUID(as_uuid=True),
         ForeignKey("materiales_biblioteca.id_material"),
         primary_key=True,
     )
-    volumen = Column(Integer, nullable=False)
-    numero_edicion = Column(Integer, nullable=False)
+    volumen: int = Column(Integer, nullable=False)
+    numero_edicion: int = Column(Integer, nullable=False)
 
     __mapper_args__ = {"polymorphic_identity": TipoMaterial.revista}
 
