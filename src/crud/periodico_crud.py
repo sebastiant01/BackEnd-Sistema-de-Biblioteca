@@ -103,23 +103,23 @@ class PeriodicoCRUD:
         self.database.refresh(nuevo_periodico)
         return nuevo_periodico
 
-        def obtener_periodico(self, id_periodico: UUID) -> Optional[Periodico]:
-            """
-            Obtiene un periódico por su UUID.
+    def obtener_periodico(self, id_periodico: UUID) -> Optional[Periodico]:
+        """
+        Obtiene un periódico por su UUID.
 
-            Realiza automáticamente el JOIN entre materiales_biblioteca y periodicos.
+        Realiza automáticamente el JOIN entre materiales_biblioteca y periodicos.
 
-            Args:
-                id_periodico: UUID del periódico a buscar.
+        Args:
+            id_periodico: UUID del periódico a buscar.
 
-            Returns:
-                Periodico encontrado o None si no existe.
-            """
-            return (
-                self.database.query(Periodico)
-                .filter(Periodico.id_periodico == id_periodico)
-                .first()
-            )
+        Returns:
+            Periodico encontrado o None si no existe.
+        """
+        return (
+            self.database.query(Periodico)
+            .filter(Periodico.id_periodico == id_periodico)
+            .first()
+        )
 
     def obtener_periodicos(self, skip: int = 0, limit: int = 100) -> List[Periodico]:
         """
@@ -147,7 +147,7 @@ class PeriodicoCRUD:
         return (
             self.database.query(Periodico)
             .filter(Periodico.codigo_material == codigo_periodico)
-            .first
+            .first()
         )
 
     def obtener_periodicos_por_autor(self, id_autor: UUID) -> List[Periodico]:
