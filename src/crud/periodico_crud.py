@@ -57,6 +57,9 @@ class PeriodicoCRUD:
         if not codigo_periodico or len(codigo_periodico.strip()) == 0:
             raise ValueError("El código del periódico es obligatorio")
 
+        if not codigo_periodico.startswith("P"):
+            raise ValueError("El código es inválido")
+
         if not titulo_periodico or len(titulo_periodico.strip()) == 0:
             raise ValueError("El título del periódico es obligatorio")
 

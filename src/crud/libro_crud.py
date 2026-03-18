@@ -55,10 +55,11 @@ class LibroCRUD:
             ValueError: Si algún campo obligatorio es inválido o ya existe.
         """
 
-        if not codigo_libro or len(codigo_libro.strip()) == 0 or codigo_libro[0] != "L":
-            raise ValueError(
-                "El código del libro es obligatorio, y debe de empezar con L"
-            )
+        if not codigo_libro or len(codigo_libro.strip()) == 0:
+            raise ValueError("El código del libro es obligatorio")
+
+        if not codigo_libro.startswith("L"):
+            raise ValueError("El código es inválido")
 
         if not titulo_libro or len(titulo_libro.strip()) == 0:
             raise ValueError("El título del material es obligatorio")
