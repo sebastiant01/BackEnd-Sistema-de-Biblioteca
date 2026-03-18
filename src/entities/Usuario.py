@@ -4,10 +4,9 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import Column, String, CheckConstraint, DateTime
+from sqlalchemy import Column, String, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 from src.database.config import Base
 from src.entities.Auditoria import Auditoria
 
@@ -65,15 +64,24 @@ class Usuario(Base, Auditoria):
     )
 
     prestamo = relationship(
-        "Prestamo", back_populates="usuario_presta", cascade="all, delete-orphan"
+        "Prestamo",
+        back_populates="usuario_prestamo",
+        foreign_keys="[Prestamo.id_usuario]",
+        cascade="all, delete-orphan",
     )
 
     reserva = relationship(
-        "Reserva", back_populates="usuario_reserva", cascade="all, delete-orphan"
+        "Reserva",
+        back_populates="usuario",
+        foreign_keys="[Reserva.id_usuario]",
+        cascade="all, delete-orphan",
     )
 
     sanciones = relationship(
-        "Sancion", back_populates="usuario_sancionado", cascade="all, delete-orphan"
+        "Sancion",
+        back_populates="usuario_sancionado",
+        foreign_keys="[Sancion.id_usuario]",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:

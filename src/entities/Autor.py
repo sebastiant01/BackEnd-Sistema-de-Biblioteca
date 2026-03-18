@@ -44,7 +44,11 @@ class Autor(Base, Auditoria):
     apellido_autor = Column(String(50), nullable=True)
     nacionalidad = Column(String(50), nullable=True)
 
-    materiales_biblioteca = relationship("MaterialBiblioteca", back_populates="autor")
+    materiales_biblioteca = relationship(
+        "MaterialBiblioteca",
+        back_populates="autor",
+        foreign_keys="[MaterialBiblioteca.id_autor]",
+    )
 
     def __repr__(self) -> str:
         """

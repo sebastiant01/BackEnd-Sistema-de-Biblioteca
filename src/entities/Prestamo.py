@@ -46,15 +46,25 @@ class Prestamo(Base, Auditoria):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"))
-    usuario_prestamo = relationship("Usuario", back_populates="prestamo")
+    usuario_prestamo = relationship(
+        "Usuario", back_populates="prestamo", foreign_keys="[Prestamo.id_usuario]"
+    )
 
     id_material = Column(
         UUID(as_uuid=True), ForeignKey("materiales_biblioteca.id_material")
     )
-    material_prestado = relationship("MaterialBiblioteca", back_populates="prestamo")
+    material_prestado = relationship(
+        "MaterialBiblioteca",
+        back_populates="prestamo",
+        foreign_keys="[Prestamo.id_material]",
+    )
 
     fecha_prestamo = Column(DateTime(timezone=True), server_default=func.now())
     estado = Column(String, nullable=False, default="Activa")
+
+    sancion_involucrada = relationship(
+        "Sancion", back_populates="prestamo", foreign_keys="[Sancion.id_prestamo]"
+    )
 
     def __repr__(self) -> str:
         """

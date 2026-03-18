@@ -10,6 +10,7 @@ import uuid
 import enum
 
 from src.database.config import Base
+from src.entities.Auditoria import Auditoria
 from sqlalchemy import Column, Date, DateTime, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -22,7 +23,7 @@ class EstadoReserva(enum.Enum):
     cancelada: str = "cancelada"
 
 
-class Reserva(Base):
+class Reserva(Base, Auditoria):
     """Modelo de Reserva"""
 
     __tablename__ = "reservas"
@@ -35,9 +36,6 @@ class Reserva(Base):
         Enum(EstadoReserva), nullable=False, default=EstadoReserva.pendiente
     )
 
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
-    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
-
     id_usuario = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
@@ -46,28 +44,17 @@ class Reserva(Base):
         ForeignKey("materiales_biblioteca.id_material"),
         nullable=False,
     )
-    id_usuario_creacion = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
-    )
-    id_usuario_edita = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
-    )
 
     usuario = relationship(
         "Usuario",
-        foreign_keys=[id_usuario],
+        back_populates="reserva",
+        foreign_keys="[Reserva.id_usuario]",
     )
+
     material = relationship(
         "MaterialBiblioteca",
-        foreign_keys=[id_material],
-    )
-    usuario_creacion = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_creacion],
-    )
-    usuario_edita = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_edita],
+        back_populates="reserva",
+        foreign_keys="[Reserva.id_material]",
     )
 
     def __repr__(self) -> str:

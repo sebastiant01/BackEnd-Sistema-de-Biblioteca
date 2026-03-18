@@ -28,25 +28,6 @@ class Revista(MaterialBiblioteca):
     volumen = Column(Integer, nullable=False)
     numero_edicion = Column(Integer, nullable=False)
 
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
-    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
-
-    id_usuario_creacion = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
-    )
-    id_usuario_edita = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
-    )
-
-    usuario_creacion = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_creacion],
-    )
-    usuario_edita = relationship(
-        "Usuario",
-        foreign_keys=[id_usuario_edita],
-    )
-
     __mapper_args__ = {"polymorphic_identity": TipoMaterial.revista}
 
     def __repr__(self):
