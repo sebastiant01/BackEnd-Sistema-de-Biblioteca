@@ -44,7 +44,7 @@ def crear_usuario(
         db.add(nuevo_usuario)
         db.commit()
         db.refresh(nuevo_usuario)
-        print(f"Usuario creado exitosamente OwO: {nuevo_usuario.username}")
+        print(f"Usuario creado exitosamente: {nuevo_usuario.username}")
         return nuevo_usuario
     except IntegrityError as e:
         db.rollback()
@@ -71,7 +71,7 @@ def consultar_usuario_por_id(id_ingresado: str) -> Optional[Usuario]:
 def consultar_usuario_por_username(username_ingresado: str) -> Optional[Usuario]:
     usuario = db.query(Usuario).filter(Usuario.username == username_ingresado).first()
     if usuario:
-        print(f"Usuario encontrado B): {usuario.nombre} {usuario.apellido}")
+        print(f"Usuario encontrado: {usuario.nombre} {usuario.apellido}")
     return usuario
 
 
@@ -123,10 +123,8 @@ def actualizar_usuario(id_usuario: str, **kwargs) -> Optional[Usuario]:
         print("Error: No se encontró el usuario para actualizar x_x")
         return None
 
-    # Iteramos sobre los argumentos que mandaste (kwargs)
     for key, value in kwargs.items():
         if hasattr(usuario_encontrado, key):
-            # Si están actualizando la contraseña, la hasheamos primero
             if key == "contrasena":
                 value = security.hashear_contrasena(value)
             setattr(usuario_encontrado, key, value)
@@ -134,7 +132,7 @@ def actualizar_usuario(id_usuario: str, **kwargs) -> Optional[Usuario]:
     try:
         db.commit()
         db.refresh(usuario_encontrado)
-        print(f"Usuario {usuario_encontrado.username} actualizado con éxito uwu")
+        print(f"Usuario {usuario_encontrado.username} actualizado con éxito")
         return usuario_encontrado
     except Exception as e:
         db.rollback()
@@ -145,7 +143,7 @@ def actualizar_usuario(id_usuario: str, **kwargs) -> Optional[Usuario]:
 def eliminar_usuario(id_usuario: str) -> bool:
     """
     Eliminación física del usuario de la base de datos.
-    Como arreglamos la auditoría con Soft References, esto no explotará B).
+    Ya que la auditoría usa Soft References, la base de datos no fallará.
     """
     usuario_encontrado = consultar_usuario_por_id(id_usuario)
 
@@ -156,7 +154,7 @@ def eliminar_usuario(id_usuario: str) -> bool:
     try:
         db.delete(usuario_encontrado)
         db.commit()
-        print(f"Usuario eliminado del sistema para siempre 💀")
+        print(f"Usuario eliminado del sistema")
         return True
     except Exception as e:
         db.rollback()
