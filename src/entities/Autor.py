@@ -28,6 +28,7 @@ class Autor(Base, Auditoria):
         nombre_autor (str): Nombre(s) del autor. Campo obligatorio, máximo 50 caracteres.
         apellido_autor (str): Apellido(s) del autor. Campo opcional, máximo 50 caracteres.
         nacionalidad (str): País de origen del autor. Campo opcional, máximo 50 caracteres.
+        activo (bool): Representa si el autor sigue activo dentro de la base de datos.
 
     Relationships:
         materiales_biblioteca (list): Colección de objetos `MaterialBiblioteca`
