@@ -1,5 +1,8 @@
+from typing import Optional
+
 from src.database.config import create_tables, SessionLocal
 
+# Se traen todas las entidades para que se creen las tablas
 from src.entities import (
     Usuario,
     Autor,
@@ -30,21 +33,33 @@ db = SessionLocal()
 
 
 def iniciar_sesion() -> Usuario:
-    gestor_crud = UsuarioCRUD(db_session=db)
-    gestor_seguridad = Security()
-    username = ""
+    """
+    Gestiona el flujo de inicio de sesión del usuario.
+
+    Solicita el username y la contraseña, valida las credenciales
+    contra la base de datos y retorna el usuario autenticado.
+    El ciclo se repite hasta que las credenciales sean correctas.
+
+    Returns:
+        Usuario: El objeto Usuario autenticado exitosamente.
+    """
+    gestor_crud: UsuarioCRUD = UsuarioCRUD(db_session=db)
+    gestor_seguridad: Security = Security()
+    username: str = ""
     while True:
         if len(username) == 0:
             print("Ingrese su nombre de usuario (username): ")
             username = input().strip()
-            usuario = gestor_crud.consultar_usuario_por_username(username)
+            usuario: Optional[Usuario] = gestor_crud.consultar_usuario_por_username(
+                username
+            )
             if not usuario:
                 print("El usuario ingresado no existe, por favor intente nuevamente")
                 username = ""
                 continue
         print("Ingrese su contraseña: ")
-        contrasena_plana = input().strip()
-        hash_guardado = usuario.contrasena
+        contrasena_plana: str = input().strip()
+        hash_guardado: str = usuario.contrasena
         if not gestor_seguridad.verificar_contrasena_ingresada(
             contrasena_plana, hash_guardado
         ):
@@ -54,26 +69,40 @@ def iniciar_sesion() -> Usuario:
         return gestor_crud.consultar_usuario_por_username(username)
 
 
-def registrar_usuario_nuevo():
-    gestor_crud = UsuarioCRUD(db_session=db)
+def registrar_usuario_nuevo() -> Optional[Usuario]:
+    """
+    Gestiona el flujo de registro de un nuevo usuario.
+
+    Solicita los datos personales y credenciales del usuario,
+    valida que el email y documento no estén registrados previamente,
+    y crea el usuario con rol 'Usuario' por defecto.
+
+    Returns:
+        Optional[Usuario]: El objeto Usuario creado, o None si el registro falla.
+    """
+    gestor_crud: UsuarioCRUD = UsuarioCRUD(db_session=db)
     print(f"\nIniciando registro de usuario nuevo...")
     print("Ingrese el nombre: ")
-    nuevo_nombre = input().strip()
+    nuevo_nombre: str = input().strip()
     print("Ingrese el apellido: ")
-    nuevo_apellido = input().strip()
+    nuevo_apellido: str = input().strip()
     print("Ingrese el documento de identificación: ")
-    nuevo_documento = input().strip()
+    nuevo_documento: str = input().strip()
     print("Ingrese el email: ")
-    nuevo_email = input().strip()
+    nuevo_email: str = input().strip()
     print("Ingrese el teléfono: ")
-    nuevo_telefono = input().strip()
+    nuevo_telefono: str = input().strip()
     print("Ingrese la contraseña: ")
-    nueva_contrasena = input().strip()
-    usuario_existente_email = gestor_crud.consultar_usuario_por_email(nuevo_email)
+    nueva_contrasena: str = input().strip()
+    usuario_existente_email: Optional[Usuario] = (
+        gestor_crud.consultar_usuario_por_email(nuevo_email)
+    )
     if usuario_existente_email:
         print("Error: ¡Ese correo ya está registrado en el sistema! x_x")
         return None
-    usuario_existente_doc = gestor_crud.consultar_usuario_por_documento(nuevo_documento)
+    usuario_existente_doc: Optional[Usuario] = (
+        gestor_crud.consultar_usuario_por_documento(nuevo_documento)
+    )
     if usuario_existente_doc:
         print("Error: Alguien ya se registró con ese documento de identidad")
         return None
@@ -85,7 +114,7 @@ def registrar_usuario_nuevo():
     if not nuevo_telefono.isdigit():
         print("Error: El teléfono solo puede contener números.")
         return None
-    nuevo_user = gestor_crud.crear_usuario(
+    nuevo_user: Optional[Usuario] = gestor_crud.crear_usuario(
         nombre_nuevo=nuevo_nombre,
         apellido_nuevo=nuevo_apellido,
         documento_nuevo=nuevo_documento,
@@ -105,8 +134,21 @@ def registrar_usuario_nuevo():
 # ====== HELPER AUTOR ======
 
 
-def _seleccionar_autor(crud_autor) -> str | None:
-    autores = crud_autor.obtener_todos_los_autores()
+def _seleccionar_autor(crud_autor: AutorCRUD) -> Optional[str]:
+    """
+    Muestra la lista de autores disponibles y permite seleccionar uno por número.
+
+    Evita que el usuario tenga que ingresar el UUID manualmente.
+    Retorna el id_autor del autor seleccionado.
+
+    Args:
+        crud_autor: Instancia del CRUD de Autor con sesión activa.
+
+    Returns:
+        Optional[str]: El UUID del autor seleccionado, o None si no hay autores
+                       o la selección es inválida.
+    """
+    autores: list = crud_autor.obtener_todos_los_autores()
     if not autores:
         print("No hay autores registrados. Registre un autor primero.")
         return None
@@ -114,7 +156,7 @@ def _seleccionar_autor(crud_autor) -> str | None:
     for i, a in enumerate(autores, start=1):
         print(f"  {i}. {a.nombre_autor} {a.apellido_autor or ''}")
     print("Seleccione el numero del autor: ")
-    seleccion = input().strip()
+    seleccion: str = input().strip()
     if not seleccion.isdigit() or not (1 <= int(seleccion) <= len(autores)):
         print("Seleccion invalida.")
         return None
@@ -124,7 +166,7 @@ def _seleccionar_autor(crud_autor) -> str | None:
 # ====== MENÚ AUTOR ======
 
 
-def menu_autor(usuario_activo):
+def menu_autor(usuario_activo: Usuario) -> None:
     """
     Despliega el menú de gestión de autores.
 
@@ -134,7 +176,7 @@ def menu_autor(usuario_activo):
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_autor = AutorCRUD(db_session=db)
+    crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
         print("\nMENU AUTORES")
@@ -145,7 +187,7 @@ def menu_autor(usuario_activo):
         print("5. Editar autor")
         print("6. Eliminar autor")
         print("0. Volver al menu principal")
-        opcion = input("Seleccione una opcion: ").strip()
+        opcion: str = input("Seleccione una opcion: ").strip()
 
         match opcion:
             case "1":
@@ -167,7 +209,7 @@ def menu_autor(usuario_activo):
                 print("Opcion invalida. Por favor intente de nuevo.")
 
 
-def _crear_autor(crud_autor, usuario_activo):
+def _crear_autor(crud_autor: AutorCRUD, usuario_activo: Usuario) -> None:
     """
     Solicita los datos necesarios y crea un nuevo autor.
 
@@ -177,11 +219,11 @@ def _crear_autor(crud_autor, usuario_activo):
     """
     print("\n--- Crear nuevo autor ---")
     print("Ingrese el nombre del autor: ")
-    nombre = input().strip()
+    nombre: str = input().strip()
     print("Ingrese el apellido (opcional, presione Enter para omitir): ")
-    apellido = input().strip() or None
+    apellido: Optional[str] = input().strip() or None
     print("Ingrese la nacionalidad (opcional, presione Enter para omitir): ")
-    nacionalidad = input().strip() or None
+    nacionalidad: Optional[str] = input().strip() or None
     crud_autor.crear_autor(
         nombre_autor=nombre,
         apellido_autor=apellido,
@@ -190,7 +232,7 @@ def _crear_autor(crud_autor, usuario_activo):
     )
 
 
-def _listar_autores(crud_autor):
+def _listar_autores(crud_autor: AutorCRUD) -> None:
     """
     Lista todos los autores activos registrados en el sistema.
 
@@ -198,7 +240,7 @@ def _listar_autores(crud_autor):
         crud_autor: Instancia del CRUD de Autor.
     """
     print("\n--- Todos los autores ---")
-    autores = crud_autor.obtener_todos_los_autores()
+    autores: list = crud_autor.obtener_todos_los_autores()
     if not autores:
         print("No hay autores registrados.")
         return
@@ -209,7 +251,7 @@ def _listar_autores(crud_autor):
         )
 
 
-def _buscar_autor_por_nombre(crud_autor):
+def _buscar_autor_por_nombre(crud_autor: AutorCRUD) -> None:
     """
     Busca autores cuyo nombre o apellido contenga el termino ingresado.
 
@@ -217,8 +259,8 @@ def _buscar_autor_por_nombre(crud_autor):
         crud_autor: Instancia del CRUD de Autor.
     """
     print("\n--- Buscar autor por nombre ---")
-    termino = input("Ingrese el termino de busqueda: ").strip()
-    autores = crud_autor.buscar_autor_por_nombre(termino)
+    termino: str = input("Ingrese el termino de busqueda: ").strip()
+    autores: list = crud_autor.buscar_autor_por_nombre(termino)
     if not autores:
         print("No se encontraron autores con ese nombre.")
         return
@@ -226,7 +268,7 @@ def _buscar_autor_por_nombre(crud_autor):
         print(f"ID: {a.id_autor} | Nombre: {a.nombre_autor} {a.apellido_autor or ''}")
 
 
-def _consultar_autor_por_id(crud_autor):
+def _consultar_autor_por_id(crud_autor: AutorCRUD) -> None:
     """
     Busca y muestra un autor por su ID.
 
@@ -234,8 +276,8 @@ def _consultar_autor_por_id(crud_autor):
         crud_autor: Instancia del CRUD de Autor.
     """
     print("\n--- Consultar autor por ID ---")
-    id_autor = input("Ingrese el ID del autor: ").strip()
-    autor = crud_autor.consultar_autor_por_id(id_autor)
+    id_autor: str = input("Ingrese el ID del autor: ").strip()
+    autor: Optional[Autor] = crud_autor.consultar_autor_por_id(id_autor)
     if not autor:
         print("No se encontro el autor.")
         return
@@ -245,33 +287,36 @@ def _consultar_autor_por_id(crud_autor):
     print(f"Creado: {autor.fecha_creacion}")
 
 
-def _editar_autor(crud_autor, usuario_activo):
+def _editar_autor(crud_autor: AutorCRUD, usuario_activo: Usuario) -> None:
     """
     Edita los campos de un autor existente.
+
+    Permite modificar nombre, apellido y nacionalidad de forma dinámica.
+    Solo se actualizan los campos que el usuario modifica.
 
     Args:
         crud_autor: Instancia del CRUD de Autor.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Editar autor ---")
-    id_autor = input("Ingrese el ID del autor a editar: ").strip()
-    autor = crud_autor.consultar_autor_por_id(id_autor)
+    id_autor: str = input("Ingrese el ID del autor a editar: ").strip()
+    autor: Optional[Autor] = crud_autor.consultar_autor_por_id(id_autor)
     if not autor:
         print("No se encontro el autor.")
         return
     print(f"Editando: {autor.nombre_autor} {autor.apellido_autor or ''}")
     print("Presione Enter para mantener el valor actual.")
-    campos = {}
+    campos: dict = {}
     print(f"Nuevo nombre [{autor.nombre_autor}]: ")
-    nuevo_nombre = input().strip()
+    nuevo_nombre: str = input().strip()
     if nuevo_nombre:
         campos["nombre_autor"] = nuevo_nombre
     print(f"Nuevo apellido [{autor.apellido_autor or 'N/A'}]: ")
-    nuevo_apellido = input().strip()
+    nuevo_apellido: str = input().strip()
     if nuevo_apellido:
         campos["apellido_autor"] = nuevo_apellido
     print(f"Nueva nacionalidad [{autor.nacionalidad or 'N/A'}]: ")
-    nueva_nacionalidad = input().strip()
+    nueva_nacionalidad: str = input().strip()
     if nueva_nacionalidad:
         campos["nacionalidad"] = nueva_nacionalidad
     if not campos:
@@ -284,21 +329,24 @@ def _editar_autor(crud_autor, usuario_activo):
     )
 
 
-def _eliminar_autor(crud_autor, usuario_activo):
+def _eliminar_autor(crud_autor: AutorCRUD, usuario_activo: Usuario) -> None:
     """
     Realiza una baja logica del autor (soft delete).
+
+    El autor no se elimina fisicamente de la base de datos,
+    sino que se marca como inactivo mediante el campo 'activo'.
 
     Args:
         crud_autor: Instancia del CRUD de Autor.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Eliminar autor ---")
-    id_autor = input("Ingrese el ID del autor a eliminar: ").strip()
-    autor = crud_autor.consultar_autor_por_id(id_autor)
+    id_autor: str = input("Ingrese el ID del autor a eliminar: ").strip()
+    autor: Optional[Autor] = crud_autor.consultar_autor_por_id(id_autor)
     if not autor:
         print("No se encontro el autor.")
         return
-    confirmacion = input(
+    confirmacion: str = input(
         f"Esta seguro que desea eliminar '{autor.nombre_autor} {autor.apellido_autor or ''}'? (si/no): "
     ).lower()
     if confirmacion != "si":
@@ -313,7 +361,7 @@ def _eliminar_autor(crud_autor, usuario_activo):
 # ====== MENÚ LIBRO ======
 
 
-def menu_libro(usuario_activo):
+def menu_libro(usuario_activo: Usuario) -> None:
     """
     Despliega el menú de gestión de libros.
 
@@ -323,8 +371,8 @@ def menu_libro(usuario_activo):
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_libro = LibroCRUD(database=db)
-    crud_autor = AutorCRUD(db_session=db)
+    crud_libro: LibroCRUD = LibroCRUD(database=db)
+    crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
         print("\nMENU LIBROS")
@@ -338,7 +386,7 @@ def menu_libro(usuario_activo):
         print("8. Cambiar disponibilidad")
         print("9. Eliminar libro")
         print("0. Volver al menu principal")
-        opcion = input("Seleccione una opcion: ").strip()
+        opcion: str = input("Seleccione una opcion: ").strip()
 
         match opcion:
             case "1":
@@ -366,9 +414,15 @@ def menu_libro(usuario_activo):
                 print("Opcion invalida. Por favor intente de nuevo.")
 
 
-def _crear_libro(crud_libro, crud_autor, usuario_activo):
+def _crear_libro(
+    crud_libro: LibroCRUD, crud_autor: AutorCRUD, usuario_activo: Usuario
+) -> None:
     """
     Solicita los datos necesarios y crea un nuevo libro.
+
+    Permite seleccionar el autor de una lista numerada para evitar
+    ingresar el UUID manualmente. Inserta automaticamente en
+    materiales_biblioteca y libros gracias a la herencia por tabla unida.
 
     Args:
         crud_libro: Instancia del CRUD de Libro.
@@ -376,19 +430,19 @@ def _crear_libro(crud_libro, crud_autor, usuario_activo):
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Crear nuevo libro ---")
-    id_autor = _seleccionar_autor(crud_autor)
+    id_autor: Optional[str] = _seleccionar_autor(crud_autor)
     if not id_autor:
         return
     print("\nIngrese el codigo del libro (debe empezar con 'L', ej: L001): ")
-    codigo = input().strip()
+    codigo: str = input().strip()
     print("Ingrese el titulo del libro: ")
-    titulo = input().strip()
+    titulo: str = input().strip()
     print("Ingrese el ISBN: ")
-    isbn = input().strip()
+    isbn: str = input().strip()
     print("Ingrese el genero literario: ")
-    genero = input().strip()
+    genero: str = input().strip()
     print("Ingrese la fecha de publicacion (YYYY-MM-DD) o presione Enter para omitir: ")
-    fecha_str = input().strip()
+    fecha_str: str = input().strip()
     fecha = None
     if fecha_str:
         from datetime import date
@@ -398,9 +452,9 @@ def _crear_libro(crud_libro, crud_autor, usuario_activo):
         except ValueError:
             print("Formato de fecha invalido, se omitira.")
     print("Ingrese una descripcion (opcional, presione Enter para omitir): ")
-    descripcion = input().strip() or None
+    descripcion: Optional[str] = input().strip() or None
     try:
-        libro = crud_libro.crear_libro(
+        libro: Libro = crud_libro.crear_libro(
             codigo_libro=codigo,
             titulo_libro=titulo,
             genero_libro=genero,
@@ -418,7 +472,7 @@ def _crear_libro(crud_libro, crud_autor, usuario_activo):
         print(f"Error: {e}")
 
 
-def _listar_libros(crud_libro):
+def _listar_libros(crud_libro: LibroCRUD) -> None:
     """
     Lista todos los libros registrados en el sistema.
 
@@ -426,7 +480,7 @@ def _listar_libros(crud_libro):
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Todos los libros ---")
-    libros = crud_libro.obtener_libros()
+    libros: list = crud_libro.obtener_libros()
     if not libros:
         print("No hay libros registrados.")
         return
@@ -438,7 +492,7 @@ def _listar_libros(crud_libro):
         )
 
 
-def _buscar_libro_por_codigo(crud_libro):
+def _buscar_libro_por_codigo(crud_libro: LibroCRUD) -> None:
     """
     Busca y muestra un libro por su codigo.
 
@@ -446,8 +500,8 @@ def _buscar_libro_por_codigo(crud_libro):
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Buscar libro por codigo ---")
-    codigo = input("Ingrese el codigo del libro (ej: L001): ").strip()
-    libro = crud_libro.obtener_libro_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del libro (ej: L001): ").strip()
+    libro: Optional[Libro] = crud_libro.obtener_libro_codigo(codigo)
     if not libro:
         print("No se encontro ningun libro con ese codigo.")
         return
@@ -460,7 +514,7 @@ def _buscar_libro_por_codigo(crud_libro):
     print(f"Disponible: {'Si' if libro.disponibilidad_material else 'No'}")
 
 
-def _buscar_libro_por_titulo(crud_libro):
+def _buscar_libro_por_titulo(crud_libro: LibroCRUD) -> None:
     """
     Busca libros cuyo titulo contenga el termino ingresado.
 
@@ -468,8 +522,8 @@ def _buscar_libro_por_titulo(crud_libro):
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Buscar libro por titulo ---")
-    titulo = input("Ingrese el titulo a buscar: ").strip()
-    libros = crud_libro.buscar_libros_por_titulo(titulo)
+    titulo: str = input("Ingrese el titulo a buscar: ").strip()
+    libros: list = crud_libro.buscar_libros_por_titulo(titulo)
     if not libros:
         print("No se encontraron libros con ese titulo.")
         return
@@ -479,7 +533,7 @@ def _buscar_libro_por_titulo(crud_libro):
         )
 
 
-def _buscar_libro_por_genero(crud_libro):
+def _buscar_libro_por_genero(crud_libro: LibroCRUD) -> None:
     """
     Busca libros cuyo genero contenga el termino ingresado.
 
@@ -487,8 +541,8 @@ def _buscar_libro_por_genero(crud_libro):
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Buscar libro por genero ---")
-    genero = input("Ingrese el genero a buscar: ").strip()
-    libros = crud_libro.buscar_libros_por_genero(genero)
+    genero: str = input("Ingrese el genero a buscar: ").strip()
+    libros: list = crud_libro.buscar_libros_por_genero(genero)
     if not libros:
         print("No se encontraron libros con ese genero.")
         return
@@ -498,7 +552,7 @@ def _buscar_libro_por_genero(crud_libro):
         )
 
 
-def _listar_libros_disponibles(crud_libro):
+def _listar_libros_disponibles(crud_libro: LibroCRUD) -> None:
     """
     Lista los libros que estan disponibles para prestamo.
 
@@ -506,7 +560,7 @@ def _listar_libros_disponibles(crud_libro):
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Libros disponibles ---")
-    libros = crud_libro.obtener_libros_disponibles()
+    libros: list = crud_libro.obtener_libros_disponibles()
     if not libros:
         print("No hay libros disponibles en este momento.")
         return
@@ -516,37 +570,40 @@ def _listar_libros_disponibles(crud_libro):
         )
 
 
-def _editar_libro(crud_libro, usuario_activo):
+def _editar_libro(crud_libro: LibroCRUD, usuario_activo: Usuario) -> None:
     """
     Edita los campos de un libro existente.
+
+    Permite modificar titulo, genero, ISBN y descripcion de forma dinamica.
+    Solo se actualizan los campos que el usuario modifica.
 
     Args:
         crud_libro: Instancia del CRUD de Libro.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Editar libro ---")
-    codigo = input("Ingrese el codigo del libro a editar (ej: L001): ").strip()
-    libro = crud_libro.obtener_libro_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del libro a editar (ej: L001): ").strip()
+    libro: Optional[Libro] = crud_libro.obtener_libro_codigo(codigo)
     if not libro:
         print("No se encontro ningun libro con ese codigo.")
         return
     print(f"Editando: {libro.titulo_material}")
     print("Presione Enter para mantener el valor actual.")
-    campos = {}
+    campos: dict = {}
     print(f"Nuevo titulo [{libro.titulo_material}]: ")
-    nuevo_titulo = input().strip()
+    nuevo_titulo: str = input().strip()
     if nuevo_titulo:
         campos["titulo_material"] = nuevo_titulo
     print(f"Nuevo genero [{libro.genero_libro}]: ")
-    nuevo_genero = input().strip()
+    nuevo_genero: str = input().strip()
     if nuevo_genero:
         campos["genero_libro"] = nuevo_genero
     print(f"Nuevo ISBN [{libro.codigo_isbn}]: ")
-    nuevo_isbn = input().strip()
+    nuevo_isbn: str = input().strip()
     if nuevo_isbn:
         campos["codigo_isbn"] = nuevo_isbn
     print(f"Nueva descripcion [{libro.descripcion_material or 'N/A'}]: ")
-    nueva_descripcion = input().strip()
+    nueva_descripcion: str = input().strip()
     if nueva_descripcion:
         campos["descripcion_material"] = nueva_descripcion
     if not campos:
@@ -563,17 +620,22 @@ def _editar_libro(crud_libro, usuario_activo):
         print(f"Error: {e}")
 
 
-def _cambiar_disponibilidad_libro(crud_libro, usuario_activo):
+def _cambiar_disponibilidad_libro(
+    crud_libro: LibroCRUD, usuario_activo: Usuario
+) -> None:
     """
     Cambia la disponibilidad de un libro.
+
+    True indica que el libro esta disponible para prestamo.
+    False indica que el libro esta actualmente prestado.
 
     Args:
         crud_libro: Instancia del CRUD de Libro.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Cambiar disponibilidad ---")
-    codigo = input("Ingrese el codigo del libro (ej: L001): ").strip()
-    libro = crud_libro.obtener_libro_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del libro (ej: L001): ").strip()
+    libro: Optional[Libro] = crud_libro.obtener_libro_codigo(codigo)
     if not libro:
         print("No se encontro ningun libro con ese codigo.")
         return
@@ -582,7 +644,7 @@ def _cambiar_disponibilidad_libro(crud_libro, usuario_activo):
     )
     print("1. Disponible")
     print("2. No disponible")
-    opcion = input("Seleccione: ").strip()
+    opcion: str = input("Seleccione: ").strip()
     match opcion:
         case "1":
             crud_libro.cambiar_disponibilidad(
@@ -602,20 +664,23 @@ def _cambiar_disponibilidad_libro(crud_libro, usuario_activo):
             print("Opcion invalida.")
 
 
-def _eliminar_libro(crud_libro):
+def _eliminar_libro(crud_libro: LibroCRUD) -> None:
     """
     Elimina un libro del sistema por su codigo.
+
+    Al eliminar, SQLAlchemy borra en cascada tanto la tabla libros
+    como el registro correspondiente en materiales_biblioteca.
 
     Args:
         crud_libro: Instancia del CRUD de Libro.
     """
     print("\n--- Eliminar libro ---")
-    codigo = input("Ingrese el codigo del libro a eliminar (ej: L001): ").strip()
-    libro = crud_libro.obtener_libro_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del libro a eliminar (ej: L001): ").strip()
+    libro: Optional[Libro] = crud_libro.obtener_libro_codigo(codigo)
     if not libro:
         print("No se encontro ningun libro con ese codigo.")
         return
-    confirmacion = input(
+    confirmacion: str = input(
         f"Esta seguro que desea eliminar '{libro.titulo_material}'? (si/no): "
     ).lower()
     if confirmacion != "si":
@@ -630,7 +695,7 @@ def _eliminar_libro(crud_libro):
 # ====== MENÚ REVISTA ======
 
 
-def menu_revista(usuario_activo):
+def menu_revista(usuario_activo: Usuario) -> None:
     """
     Despliega el menú de gestión de revistas.
 
@@ -640,8 +705,8 @@ def menu_revista(usuario_activo):
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_revista = RevistaCRUD(db=db)
-    crud_autor = AutorCRUD(db_session=db)
+    crud_revista: RevistaCRUD = RevistaCRUD(db=db)
+    crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
         print("\nMENU REVISTAS")
@@ -651,7 +716,7 @@ def menu_revista(usuario_activo):
         print("4. Editar revista")
         print("5. Eliminar revista")
         print("0. Volver al menu principal")
-        opcion = input("Seleccione una opcion: ").strip()
+        opcion: str = input("Seleccione una opcion: ").strip()
 
         match opcion:
             case "1":
@@ -671,9 +736,14 @@ def menu_revista(usuario_activo):
                 print("Opcion invalida. Por favor intente de nuevo.")
 
 
-def _crear_revista(crud_revista, crud_autor, usuario_activo):
+def _crear_revista(
+    crud_revista: RevistaCRUD, crud_autor: AutorCRUD, usuario_activo: Usuario
+) -> None:
     """
     Solicita los datos necesarios y crea una nueva revista.
+
+    Permite seleccionar el autor de una lista numerada. Inserta automaticamente
+    en materiales_biblioteca y revistas gracias a la herencia por tabla unida.
 
     Args:
         crud_revista: Instancia del CRUD de Revista.
@@ -681,27 +751,27 @@ def _crear_revista(crud_revista, crud_autor, usuario_activo):
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Crear nueva revista ---")
-    id_autor = _seleccionar_autor(crud_autor)
+    id_autor: Optional[str] = _seleccionar_autor(crud_autor)
     if not id_autor:
         return
     print("\nIngrese el codigo de la revista (debe empezar con 'R', ej: R001): ")
-    codigo = input().strip()
+    codigo: str = input().strip()
     print("Ingrese el titulo de la revista: ")
-    titulo = input().strip()
+    titulo: str = input().strip()
     print("Ingrese el volumen: ")
     try:
-        volumen = int(input().strip())
+        volumen: int = int(input().strip())
     except ValueError:
         print("Error: El volumen debe ser un numero.")
         return
     print("Ingrese el numero de edicion: ")
     try:
-        numero_edicion = int(input().strip())
+        numero_edicion: int = int(input().strip())
     except ValueError:
         print("Error: El numero de edicion debe ser un numero.")
         return
     print("Ingrese la fecha de publicacion (YYYY-MM-DD) o presione Enter para omitir: ")
-    fecha_str = input().strip()
+    fecha_str: str = input().strip()
     fecha = None
     if fecha_str:
         from datetime import date
@@ -711,9 +781,9 @@ def _crear_revista(crud_revista, crud_autor, usuario_activo):
         except ValueError:
             print("Formato de fecha invalido, se omitira.")
     print("Ingrese una descripcion (opcional, presione Enter para omitir): ")
-    descripcion = input().strip() or None
+    descripcion: Optional[str] = input().strip() or None
     try:
-        revista = crud_revista.crear_revista(
+        revista: Revista = crud_revista.crear_revista(
             codigo_material=codigo,
             titulo_material=titulo,
             id_autor=id_autor,
@@ -731,7 +801,7 @@ def _crear_revista(crud_revista, crud_autor, usuario_activo):
         print(f"Error: {e}")
 
 
-def _listar_revistas(crud_revista):
+def _listar_revistas(crud_revista: RevistaCRUD) -> None:
     """
     Lista todas las revistas registradas en el sistema.
 
@@ -739,7 +809,7 @@ def _listar_revistas(crud_revista):
         crud_revista: Instancia del CRUD de Revista.
     """
     print("\n--- Todas las revistas ---")
-    revistas = crud_revista.obtener_revistas()
+    revistas: list = crud_revista.obtener_revistas()
     if not revistas:
         print("No hay revistas registradas.")
         return
@@ -751,7 +821,7 @@ def _listar_revistas(crud_revista):
         )
 
 
-def _buscar_revista_por_codigo(crud_revista):
+def _buscar_revista_por_codigo(crud_revista: RevistaCRUD) -> None:
     """
     Busca y muestra una revista por su codigo.
 
@@ -759,8 +829,8 @@ def _buscar_revista_por_codigo(crud_revista):
         crud_revista: Instancia del CRUD de Revista.
     """
     print("\n--- Buscar revista por codigo ---")
-    codigo = input("Ingrese el codigo de la revista (ej: R001): ").strip()
-    revista = crud_revista.obtener_revista_por_codigo(codigo)
+    codigo: str = input("Ingrese el codigo de la revista (ej: R001): ").strip()
+    revista: Optional[Revista] = crud_revista.obtener_revista_por_codigo(codigo)
     if not revista:
         print("No se encontro ninguna revista con ese codigo.")
         return
@@ -772,17 +842,20 @@ def _buscar_revista_por_codigo(crud_revista):
     print(f"Disponible: {'Si' if revista.disponibilidad_material else 'No'}")
 
 
-def _editar_revista(crud_revista, usuario_activo):
+def _editar_revista(crud_revista: RevistaCRUD, usuario_activo: Usuario) -> None:
     """
     Edita los campos de una revista existente.
+
+    Permite modificar titulo, volumen y numero de edicion de forma dinamica.
+    Solo se actualizan los campos que el usuario modifica.
 
     Args:
         crud_revista: Instancia del CRUD de Revista.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Editar revista ---")
-    codigo = input("Ingrese el codigo de la revista a editar (ej: R001): ").strip()
-    revista = crud_revista.obtener_revista_por_codigo(codigo)
+    codigo: str = input("Ingrese el codigo de la revista a editar (ej: R001): ").strip()
+    revista: Optional[Revista] = crud_revista.obtener_revista_por_codigo(codigo)
     if not revista:
         print("No se encontro ninguna revista con ese codigo.")
         return
@@ -790,20 +863,20 @@ def _editar_revista(crud_revista, usuario_activo):
         f"Editando: {revista.titulo_material} | Volumen: {revista.volumen} | Edicion: {revista.numero_edicion}"
     )
     print("Presione Enter para mantener el valor actual.")
-    campos = {}
+    campos: dict = {}
     print(f"Nuevo titulo [{revista.titulo_material}]: ")
-    nuevo_titulo = input().strip()
+    nuevo_titulo: str = input().strip()
     if nuevo_titulo:
         campos["titulo_material"] = nuevo_titulo
     print(f"Nuevo volumen [{revista.volumen}]: ")
-    nuevo_volumen = input().strip()
+    nuevo_volumen: str = input().strip()
     if nuevo_volumen:
         try:
             campos["volumen"] = int(nuevo_volumen)
         except ValueError:
             print("Volumen invalido, se mantendra el actual.")
     print(f"Nuevo numero de edicion [{revista.numero_edicion}]: ")
-    nuevo_numero = input().strip()
+    nuevo_numero: str = input().strip()
     if nuevo_numero:
         try:
             campos["numero_edicion"] = int(nuevo_numero)
@@ -823,20 +896,25 @@ def _editar_revista(crud_revista, usuario_activo):
         print(f"Error: {e}")
 
 
-def _eliminar_revista(crud_revista):
+def _eliminar_revista(crud_revista: RevistaCRUD) -> None:
     """
     Elimina una revista del sistema por su codigo.
+
+    Al eliminar, SQLAlchemy borra en cascada tanto la tabla revistas
+    como el registro correspondiente en materiales_biblioteca.
 
     Args:
         crud_revista: Instancia del CRUD de Revista.
     """
     print("\n--- Eliminar revista ---")
-    codigo = input("Ingrese el codigo de la revista a eliminar (ej: R001): ").strip()
-    revista = crud_revista.obtener_revista_por_codigo(codigo)
+    codigo: str = input(
+        "Ingrese el codigo de la revista a eliminar (ej: R001): "
+    ).strip()
+    revista: Optional[Revista] = crud_revista.obtener_revista_por_codigo(codigo)
     if not revista:
         print("No se encontro ninguna revista con ese codigo.")
         return
-    confirmacion = input(
+    confirmacion: str = input(
         f"Esta seguro que desea eliminar '{revista.titulo_material}'? (si/no): "
     ).lower()
     if confirmacion != "si":
@@ -851,7 +929,7 @@ def _eliminar_revista(crud_revista):
 # ====== MENÚ PERIÓDICO ======
 
 
-def menu_periodico(usuario_activo):
+def menu_periodico(usuario_activo: Usuario) -> None:
     """
     Despliega el menú de gestión de periódicos.
 
@@ -861,8 +939,8 @@ def menu_periodico(usuario_activo):
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_periodico = PeriodicoCRUD(database=db)
-    crud_autor = AutorCRUD(db_session=db)
+    crud_periodico: PeriodicoCRUD = PeriodicoCRUD(database=db)
+    crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
         print("\nMENU PERIODICOS")
@@ -872,7 +950,7 @@ def menu_periodico(usuario_activo):
         print("4. Editar periodico")
         print("5. Eliminar periodico")
         print("0. Volver al menu principal")
-        opcion = input("Seleccione una opcion: ").strip()
+        opcion: str = input("Seleccione una opcion: ").strip()
 
         match opcion:
             case "1":
@@ -892,9 +970,14 @@ def menu_periodico(usuario_activo):
                 print("Opcion invalida. Por favor intente de nuevo.")
 
 
-def _crear_periodico(crud_periodico, crud_autor, usuario_activo):
+def _crear_periodico(
+    crud_periodico: PeriodicoCRUD, crud_autor: AutorCRUD, usuario_activo: Usuario
+) -> None:
     """
     Solicita los datos necesarios y crea un nuevo periodico.
+
+    Permite seleccionar el autor de una lista numerada. Inserta automaticamente
+    en materiales_biblioteca y periodicos gracias a la herencia por tabla unida.
 
     Args:
         crud_periodico: Instancia del CRUD de Periodico.
@@ -902,19 +985,19 @@ def _crear_periodico(crud_periodico, crud_autor, usuario_activo):
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Crear nuevo periodico ---")
-    id_autor = _seleccionar_autor(crud_autor)
+    id_autor: Optional[str] = _seleccionar_autor(crud_autor)
     if not id_autor:
         return
     print("\nIngrese el codigo del periodico (debe empezar con 'P', ej: P001): ")
-    codigo = input().strip()
+    codigo: str = input().strip()
     print("Ingrese el titulo del periodico: ")
-    titulo = input().strip()
+    titulo: str = input().strip()
     print("Ingrese la ciudad de publicacion: ")
-    ciudad = input().strip()
+    ciudad: str = input().strip()
     print("Ingrese la seccion del periodico (ej: deportes, politica): ")
-    seccion = input().strip()
+    seccion: str = input().strip()
     print("Ingrese la fecha de publicacion (YYYY-MM-DD) o presione Enter para omitir: ")
-    fecha_str = input().strip()
+    fecha_str: str = input().strip()
     fecha = None
     if fecha_str:
         from datetime import date
@@ -924,9 +1007,9 @@ def _crear_periodico(crud_periodico, crud_autor, usuario_activo):
         except ValueError:
             print("Formato de fecha invalido, se omitira.")
     print("Ingrese una descripcion (opcional, presione Enter para omitir): ")
-    descripcion = input().strip() or None
+    descripcion: Optional[str] = input().strip() or None
     try:
-        periodico = crud_periodico.crear_periodico(
+        periodico: Periodico = crud_periodico.crear_periodico(
             codigo_periodico=codigo,
             titulo_periodico=titulo,
             id_autor=id_autor,
@@ -944,7 +1027,7 @@ def _crear_periodico(crud_periodico, crud_autor, usuario_activo):
         print(f"Error: {e}")
 
 
-def _listar_periodicos(crud_periodico):
+def _listar_periodicos(crud_periodico: PeriodicoCRUD) -> None:
     """
     Lista todos los periodicos registrados en el sistema.
 
@@ -952,7 +1035,7 @@ def _listar_periodicos(crud_periodico):
         crud_periodico: Instancia del CRUD de Periodico.
     """
     print("\n--- Todos los periodicos ---")
-    periodicos = crud_periodico.obtener_periodicos()
+    periodicos: list = crud_periodico.obtener_periodicos()
     if not periodicos:
         print("No hay periodicos registrados.")
         return
@@ -964,7 +1047,7 @@ def _listar_periodicos(crud_periodico):
         )
 
 
-def _buscar_periodico_por_codigo(crud_periodico):
+def _buscar_periodico_por_codigo(crud_periodico: PeriodicoCRUD) -> None:
     """
     Busca y muestra un periodico por su codigo.
 
@@ -972,8 +1055,8 @@ def _buscar_periodico_por_codigo(crud_periodico):
         crud_periodico: Instancia del CRUD de Periodico.
     """
     print("\n--- Buscar periodico por codigo ---")
-    codigo = input("Ingrese el codigo del periodico (ej: P001): ").strip()
-    periodico = crud_periodico.obtener_periodico_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del periodico (ej: P001): ").strip()
+    periodico: Optional[Periodico] = crud_periodico.obtener_periodico_codigo(codigo)
     if not periodico:
         print("No se encontro ningun periodico con ese codigo.")
         return
@@ -985,33 +1068,36 @@ def _buscar_periodico_por_codigo(crud_periodico):
     print(f"Disponible: {'Si' if periodico.disponibilidad_material else 'No'}")
 
 
-def _editar_periodico(crud_periodico, usuario_activo):
+def _editar_periodico(crud_periodico: PeriodicoCRUD, usuario_activo: Usuario) -> None:
     """
     Edita los campos de un periodico existente.
+
+    Permite modificar titulo, ciudad de publicacion y seccion de forma dinamica.
+    Solo se actualizan los campos que el usuario modifica.
 
     Args:
         crud_periodico: Instancia del CRUD de Periodico.
         usuario_activo: Usuario en sesión para auditoría.
     """
     print("\n--- Editar periodico ---")
-    codigo = input("Ingrese el codigo del periodico a editar (ej: P001): ").strip()
-    periodico = crud_periodico.obtener_periodico_codigo(codigo)
+    codigo: str = input("Ingrese el codigo del periodico a editar (ej: P001): ").strip()
+    periodico: Optional[Periodico] = crud_periodico.obtener_periodico_codigo(codigo)
     if not periodico:
         print("No se encontro ningun periodico con ese codigo.")
         return
     print(f"Editando: {periodico.titulo_material}")
     print("Presione Enter para mantener el valor actual.")
-    campos = {}
+    campos: dict = {}
     print(f"Nuevo titulo [{periodico.titulo_material}]: ")
-    nuevo_titulo = input().strip()
+    nuevo_titulo: str = input().strip()
     if nuevo_titulo:
         campos["titulo_material"] = nuevo_titulo
     print(f"Nueva ciudad de publicacion [{periodico.ciudad_publicacion}]: ")
-    nueva_ciudad = input().strip()
+    nueva_ciudad: str = input().strip()
     if nueva_ciudad:
         campos["ciudad_publicacion"] = nueva_ciudad
     print(f"Nueva seccion [{periodico.seccion_periodico}]: ")
-    nueva_seccion = input().strip()
+    nueva_seccion: str = input().strip()
     if nueva_seccion:
         campos["seccion_periodico"] = nueva_seccion
     if not campos:
@@ -1028,20 +1114,25 @@ def _editar_periodico(crud_periodico, usuario_activo):
         print(f"Error: {e}")
 
 
-def _eliminar_periodico(crud_periodico):
+def _eliminar_periodico(crud_periodico: PeriodicoCRUD) -> None:
     """
     Elimina un periodico del sistema por su codigo.
+
+    Al eliminar, SQLAlchemy borra en cascada tanto la tabla periodicos
+    como el registro correspondiente en materiales_biblioteca.
 
     Args:
         crud_periodico: Instancia del CRUD de Periodico.
     """
     print("\n--- Eliminar periodico ---")
-    codigo = input("Ingrese el codigo del periodico a eliminar (ej: P001): ").strip()
-    periodico = crud_periodico.obtener_periodico_codigo(codigo)
+    codigo: str = input(
+        "Ingrese el codigo del periodico a eliminar (ej: P001): "
+    ).strip()
+    periodico: Optional[Periodico] = crud_periodico.obtener_periodico_codigo(codigo)
     if not periodico:
         print("No se encontro ningun periodico con ese codigo.")
         return
-    confirmacion = input(
+    confirmacion: str = input(
         f"Esta seguro que desea eliminar '{periodico.titulo_material}'? (si/no): "
     ).lower()
     if confirmacion != "si":
@@ -1056,11 +1147,12 @@ def _eliminar_periodico(crud_periodico):
 # ====== MENÚ PRINCIPAL ======
 
 
-def menu_principal(usuario_activo):
+def menu_principal(usuario_activo: Usuario) -> None:
     """
     Despliega el menú principal del sistema de biblioteca.
 
     Desde aquí se puede acceder a los submenús de cada entidad.
+    Muestra el nombre y rol del usuario activo en cada iteración.
 
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
@@ -1075,7 +1167,7 @@ def menu_principal(usuario_activo):
         print("3. Gestionar Revistas")
         print("4. Gestionar Periodicos")
         print("0. Cerrar sesion")
-        opcion = input("Seleccione una opcion: ").strip()
+        opcion: str = input("Seleccione una opcion: ").strip()
 
         match opcion:
             case "1":
@@ -1095,10 +1187,10 @@ def menu_principal(usuario_activo):
 
 # ====== ENTRADA DEL PROGRAMA ======
 
-usuario_activo = None
+usuario_activo: Optional[Usuario] = None
 while True:
     print("Bienvenido al sistema de la biblioteca. Se encuentra registrado?")
-    opcion = input("Si/No: ").lower()
+    opcion: str = input("Si/No: ").lower()
 
     match opcion:
         case "si":
