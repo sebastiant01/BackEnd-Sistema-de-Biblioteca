@@ -22,11 +22,6 @@ if __name__ == "__main__":
     print("Tablas verificadas correctamente en Neon.")
 
 
-# ─────────────────────────────────────────────
-# Autenticación
-# ─────────────────────────────────────────────
-
-
 def iniciar_sesion() -> Usuario:
     gestor_crud = UsuarioCRUD()
     gestor_seguridad = Security()
@@ -110,9 +105,7 @@ def registrar_usuario_nuevo() -> Usuario.Usuario | None:
         return None
 
 
-# ─────────────────────────────────────────────
-# Menú Revista
-# ─────────────────────────────────────────────
+
 
 
 def menu_revista(usuario_activo):
@@ -359,9 +352,6 @@ def _eliminar_revista(crud_revista):
         print("Error al eliminar la revista.")
 
 
-# ─────────────────────────────────────────────
-# Menú Periódico
-# ─────────────────────────────────────────────
 
 
 def menu_periodico(usuario_activo):
@@ -592,11 +582,6 @@ def _eliminar_periodico(crud_periodico):
         print("Error al eliminar el periódico.")
 
 
-# ─────────────────────────────────────────────
-# Menú Principal
-# ─────────────────────────────────────────────
-
-
 def menu_principal(usuario_activo):
     """
     Despliega el menú principal del sistema de biblioteca.
@@ -628,11 +613,6 @@ def menu_principal(usuario_activo):
                 break
             case _:
                 print("Opción inválida. Por favor intente de nuevo.")
-
-
-# ─────────────────────────────────────────────
-# Inicio del programa
-# ─────────────────────────────────────────────
 
 usuario_activo = None
 while True:
