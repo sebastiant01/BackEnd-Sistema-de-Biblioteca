@@ -1,31 +1,13 @@
+from __future__ import annotations
+
 import os
-import sys
-
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-from src.database.config import Base
-from src.entities.Auditoria import Auditoria
-from src.entities.Usuario import Usuario
-from src.entities.Prestamo import Prestamo
-from src.entities.Autor import Autor
-from src.entities.Libro import Libro
-from src.entities.MaterialBiblioteca import MaterialBiblioteca
-from src.entities.Reserva import Reserva
-from src.entities.Revista import Revista
-from src.entities.Periodico import Periodico
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from pathlib import Path
 
 from alembic import context
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 
-URL_BASE_DATOS = os.getenv("DATABASE_URL")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -36,18 +18,41 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", URL_BASE_DATOS)
-
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
+
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    raise RuntimeError("No se encontró DATABASE_URL en .env")
+
+config.set_main_option("sqlalchemy.url", database_url)
+
+from src.database.config import Base
+
+from src.entities import (
+    Usuario,
+    Autor,
+    MaterialBiblioteca,
+    Libro,
+    Revista,
+    Periodico,
+    Prestamo,
+    Reserva,
+    Sancion,
+)
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
