@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -9,7 +10,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from src.utils.security import security
+from src.utils.security import Security
 from src.database import config
 from src.entities.Usuario import Usuario
 
@@ -28,7 +29,7 @@ class UsuarioCRUD:
             db_session (Optional[Session]): Sesión de SQLAlchemy. Si no se provee,
                                             se obtiene una por defecto desde la configuración.
         """
-        self.db = db_session or config.get_db()
+        self.db = db_session or next(config.get_db())
 
     @staticmethod
     def _crear_username(nombre: str, apellido: str) -> str:
@@ -57,6 +58,7 @@ class UsuarioCRUD:
         telefono_nuevo: str,
         contrasena_nueva: str,
         rol_nuevo: str = "Usuario",
+        id_usuario_sesion=None,
     ) -> Optional[Usuario]:
         """
         Crea un nuevo usuario en la base de datos hasheando su contraseña y
@@ -75,10 +77,14 @@ class UsuarioCRUD:
             Optional[Usuario]: El objeto Usuario creado si es exitoso, o None si hay
                                un error de integridad (ej. documento o email duplicado).
         """
+        gestor_seguridad = Security()
         print("--- Creando usuario ---")
 
         nuevo_username = self._crear_username(nombre_nuevo, apellido_nuevo)
-        contrasena_hasheada = security.hashear_contrasena(contrasena_nueva)
+        contrasena_hasheada = gestor_seguridad.generar_hash(contrasena_nueva)
+
+        nuevo_id_usuario = uuid.uuid4()
+        creador_id = id_usuario_sesion if id_usuario_sesion else nuevo_id_usuario
 
         nuevo_usuario = Usuario(
             nombre=nombre_nuevo,
@@ -89,6 +95,7 @@ class UsuarioCRUD:
             username=nuevo_username,
             contrasena=contrasena_hasheada,
             rol=rol_nuevo,
+            id_usuario_crea=creador_id,
         )
 
         try:
@@ -234,6 +241,7 @@ class UsuarioCRUD:
         Returns:
             Optional[Usuario]: El usuario actualizado, o None si hubo un error o no se encontró.
         """
+        gestor_seguridad = Security()
         usuario_encontrado = self.consultar_usuario_por_id(id_usuario)
 
         if not usuario_encontrado:
@@ -243,7 +251,7 @@ class UsuarioCRUD:
         for key, value in kwargs.items():
             if hasattr(usuario_encontrado, key):
                 if key == "contrasena":
-                    value = security.hashear_contrasena(value)
+                    value = gestor_seguridad.generar_hash(value)
                 setattr(usuario_encontrado, key, value)
 
         try:
