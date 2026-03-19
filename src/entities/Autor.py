@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import Column, String, CheckConstraint, DateTime
+from sqlalchemy import Column, String, CheckConstraint, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -28,6 +28,7 @@ class Autor(Base, Auditoria):
         nombre_autor (str): Nombre(s) del autor. Campo obligatorio, máximo 50 caracteres.
         apellido_autor (str): Apellido(s) del autor. Campo opcional, máximo 50 caracteres.
         nacionalidad (str): País de origen del autor. Campo opcional, máximo 50 caracteres.
+        activo (bool): Representa si el autor sigue activo dentro de la base de datos.
 
     Relationships:
         materiales_biblioteca (list): Colección de objetos `MaterialBiblioteca`
@@ -43,6 +44,7 @@ class Autor(Base, Auditoria):
     nombre_autor: str = Column(String(50), nullable=False)
     apellido_autor: str = Column(String(50), nullable=True)
     nacionalidad: str = Column(String(50), nullable=True)
+    activo: bool = Column(Boolean, nullable=False)
 
     materiales_biblioteca = relationship(
         "MaterialBiblioteca",
