@@ -15,8 +15,8 @@ from src.entities.Libro import Libro
 
 
 class LibroCRUD:
-    def __init__(self, database: Session):
-        self.database = database
+    def __init__(self, db: Session):
+        self.db = db
 
     def crear_libro(
         self,
@@ -77,7 +77,7 @@ class LibroCRUD:
             raise ValueError("El ID del usuario que lo creó es obligatorio")
 
         existente_isbn = (
-            self.database.query(Libro)
+            self.db.query(Libro)
             .filter(Libro.codigo_isbn == codigo_isbn.strip())
             .first()
         )
@@ -86,7 +86,7 @@ class LibroCRUD:
             raise ValueError(f"Ya existe un libro con este código ISBN: {codigo_isbn}")
 
         existente_codigo = (
-            self.database.query(Libro)
+            self.db.query(Libro)
             .filter(Libro.codigo_material == codigo_libro.strip())
             .first()
         )
@@ -106,9 +106,9 @@ class LibroCRUD:
             fecha_material=fecha_libro,
         )
 
-        self.database.add(nuevo_libro)
-        self.database.commit()
-        self.database.refresh(nuevo_libro)
+        self.db.add(nuevo_libro)
+        self.db.commit()
+        self.db.refresh(nuevo_libro)
         return nuevo_libro
 
     def obtener_libro(self, id_libro: UUID) -> Optional[Libro]:
@@ -123,7 +123,7 @@ class LibroCRUD:
         Returns:
             Libro encontrado o None si no existe.
         """
-        return self.database.query(Libro).filter(Libro.id_libro == id_libro).first()
+        return self.db.query(Libro).filter(Libro.id_libro == id_libro).first()
 
     def obtener_libro_codigo(self, codigo_libro: str) -> Optional[Libro]:
         """
@@ -136,9 +136,7 @@ class LibroCRUD:
             Libro encontrado o None si no existe.
         """
         return (
-            self.database.query(Libro)
-            .filter(Libro.codigo_material == codigo_libro)
-            .first()
+            self.db.query(Libro).filter(Libro.codigo_material == codigo_libro).first()
         )
 
     def obtener_libros(self, skip: int = 0, limit: int = 100) -> List[Libro]:
@@ -152,7 +150,7 @@ class LibroCRUD:
         Returns:
             Lista de libros.
         """
-        return self.database.query(Libro).offset(skip).limit(limit).all()
+        return self.db.query(Libro).offset(skip).limit(limit).all()
 
     def obtener_libros_por_autor(self, id_autor: UUID) -> List[Libro]:
         """
@@ -164,7 +162,7 @@ class LibroCRUD:
         Returns:
             Lista de libros del autor.
         """
-        return self.database.query(Libro).filter(Libro.id_autor == id_autor).all()
+        return self.db.query(Libro).filter(Libro.id_autor == id_autor).all()
 
     def obtener_libros_disponibles(self) -> List[Libro]:
         """
@@ -173,11 +171,7 @@ class LibroCRUD:
         Returns:
             Lista de libros disponibles para préstamo.
         """
-        return (
-            self.database.query(Libro)
-            .filter(Libro.disponibilidad_material == True)
-            .all()
-        )
+        return self.db.query(Libro).filter(Libro.disponibilidad_material == True).all()
 
     def buscar_libros_por_titulo(self, titulo: str) -> List[Libro]:
         """
@@ -190,7 +184,7 @@ class LibroCRUD:
             Lista de libros que coinciden con el título.
         """
         return (
-            self.database.query(Libro)
+            self.db.query(Libro)
             .filter(Libro.titulo_material.ilike(f"%{titulo}%"))
             .all()
         )
@@ -206,9 +200,7 @@ class LibroCRUD:
             Lista de libros que coinciden con el género.
         """
         return (
-            self.database.query(Libro)
-            .filter(Libro.genero_libro.ilike(f"%{genero}%"))
-            .all()
+            self.db.query(Libro).filter(Libro.genero_libro.ilike(f"%{genero}%")).all()
         )
 
     def actualizar_libro(
@@ -249,7 +241,7 @@ class LibroCRUD:
         if "codigo_isbn" in kwargs:
             nuevo_isbn = kwargs["codigo_isbn"].strip()
             existente = (
-                self.database.query(Libro)
+                self.db.query(Libro)
                 .filter(Libro.codigo_isbn == nuevo_isbn, Libro.id_libro != id_libro)
                 .first()
             )
@@ -268,8 +260,8 @@ class LibroCRUD:
             if hasattr(libro, key):
                 setattr(libro, key, value)
 
-        self.database.commit()
-        self.database.refresh(libro)
+        self.db.commit()
+        self.db.refresh(libro)
         return libro
 
     def cambiar_disponibilidad(
@@ -307,7 +299,7 @@ class LibroCRUD:
         """
         libro = self.obtener_libro(id_libro)
         if libro:
-            self.database.delete(libro)
-            self.database.commit()
+            self.db.delete(libro)
+            self.db.commit()
             return True
         return False
