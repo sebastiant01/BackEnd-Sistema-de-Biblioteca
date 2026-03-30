@@ -15,8 +15,8 @@ from src.entities.Periodico import Periodico
 
 
 class PeriodicoCRUD:
-    def __init__(self, database: Session):
-        self.database = database
+    def __init__(self, db: Session):
+        self.db = db
 
     def crear_periodico(
         self,
@@ -76,7 +76,7 @@ class PeriodicoCRUD:
             raise ValueError("El ID del usuario que lo creó es obligatorio")
 
         existente_codigo = (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.codigo_material == codigo_periodico.strip())
             .first()
         )
@@ -98,9 +98,9 @@ class PeriodicoCRUD:
             seccion_periodico=seccion_periodico.strip(),
         )
 
-        self.database.add(nuevo_periodico)
-        self.database.commit()
-        self.database.refresh(nuevo_periodico)
+        self.db.add(nuevo_periodico)
+        self.db.commit()
+        self.db.refresh(nuevo_periodico)
         return nuevo_periodico
 
     def obtener_periodico(self, id_periodico: UUID) -> Optional[Periodico]:
@@ -116,7 +116,7 @@ class PeriodicoCRUD:
             Periodico encontrado o None si no existe.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.id_periodico == id_periodico)
             .first()
         )
@@ -132,7 +132,7 @@ class PeriodicoCRUD:
         Returns:
             Lista de periódicos.
         """
-        return self.database.query(Periodico).offset(skip).limit(limit).all()
+        return self.db.query(Periodico).offset(skip).limit(limit).all()
 
     def obtener_periodico_codigo(self, codigo_periodico: str) -> Optional[Periodico]:
         """
@@ -145,7 +145,7 @@ class PeriodicoCRUD:
             Periodico encontrado o None si no existe.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.codigo_material == codigo_periodico)
             .first()
         )
@@ -160,9 +160,7 @@ class PeriodicoCRUD:
         Returns:
             Lista de periódicos del autor.
         """
-        return (
-            self.database.query(Periodico).filter(Periodico.id_autor == id_autor).all()
-        )
+        return self.db.query(Periodico).filter(Periodico.id_autor == id_autor).all()
 
     def obtener_periodicos_por_ciudad(self, ciudad_publicacion: str) -> List[Periodico]:
         """
@@ -175,7 +173,7 @@ class PeriodicoCRUD:
             Lista de periódicos de esa ciudad.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.ciudad_publicacion.ilike(f"%{ciudad_publicacion}%"))
             .all()
         )
@@ -191,7 +189,7 @@ class PeriodicoCRUD:
             Lista de periódicos de esa sección.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.seccion_periodico.ilike(f"%{seccion_periodico}%"))
             .all()
         )
@@ -204,7 +202,7 @@ class PeriodicoCRUD:
             Lista de periódicos con disponibilidad_material en True.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.disponibilidad_material == True)
             .all()
         )
@@ -220,7 +218,7 @@ class PeriodicoCRUD:
             Lista de periódicos que coinciden con el título.
         """
         return (
-            self.database.query(Periodico)
+            self.db.query(Periodico)
             .filter(Periodico.titulo_material.ilike(f"%{titulo_periodico}%"))
             .all()
         )
@@ -283,8 +281,8 @@ class PeriodicoCRUD:
             if hasattr(periodico, key):
                 setattr(periodico, key, value)
 
-        self.database.commit()
-        self.database.refresh(periodico)
+        self.db.commit()
+        self.db.refresh(periodico)
         return periodico
 
     def cambiar_disponibilidad(
@@ -322,7 +320,7 @@ class PeriodicoCRUD:
         """
         periodico = self.obtener_periodico(id_periodico)
         if periodico:
-            self.database.delete(periodico)
-            self.database.commit()
+            self.db.delete(periodico)
+            self.db.commit()
             return True
         return False
