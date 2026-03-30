@@ -371,7 +371,7 @@ def menu_libro(usuario_activo: Usuario) -> None:
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_libro: LibroCRUD = LibroCRUD(database=db)
+    crud_libro: LibroCRUD = LibroCRUD(db=db)
     crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
@@ -939,7 +939,7 @@ def menu_periodico(usuario_activo: Usuario) -> None:
     Args:
         usuario_activo: El usuario que tiene la sesión activa en el sistema.
     """
-    crud_periodico: PeriodicoCRUD = PeriodicoCRUD(database=db)
+    crud_periodico: PeriodicoCRUD = PeriodicoCRUD(db=db)
     crud_autor: AutorCRUD = AutorCRUD(db_session=db)
 
     while True:
