@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class EstadoReservaSchema(str, Enum):
@@ -27,6 +27,9 @@ class ReservaCreate(BaseModel):
     id_usuario: UUID
     id_material: UUID
     fecha_reserva: date
+    estado_reserva: EstadoReservaSchema = EstadoReservaSchema.pendiente
+
+    id_usuario_crea: UUID
 
 
 class ReservaUpdate(BaseModel):
@@ -34,6 +37,8 @@ class ReservaUpdate(BaseModel):
 
     fecha_reserva: Optional[date] = None
     estado_reserva: Optional[EstadoReservaSchema] = None
+
+    id_usuario_edita: Optional[UUID] = None
 
 
 class ReservaRead(BaseModel):
@@ -46,7 +51,7 @@ class ReservaRead(BaseModel):
     id_material: UUID
     fecha_reserva: date
     estado_reserva: EstadoReservaSchema
-    fecha_creacion: Optional[datetime] = None
+    fecha_creacion: datetime
     fecha_edicion: Optional[datetime] = None
     id_usuario_crea: UUID
     id_usuario_edita: Optional[UUID] = None
