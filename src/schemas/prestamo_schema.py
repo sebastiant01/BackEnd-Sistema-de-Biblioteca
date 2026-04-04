@@ -7,7 +7,7 @@ from uuid import UUID
 
 from src.crud.prestamo_crud import PrestamoCRUD
 from src.crud.usuario_crud import UsuarioCRUD
-from .usuario_modelo import get_usuario_crud
+from .usuario_schema import get_usuario_crud
 from src.database.config import get_db
 
 router = APIRouter(prefix="/prestamos", tags=["prestamos"])
