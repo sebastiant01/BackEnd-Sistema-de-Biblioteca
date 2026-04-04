@@ -150,76 +150,78 @@ class PeriodicoCRUD:
             .first()
         )
 
-    def obtener_periodicos_por_autor(self, id_autor: UUID) -> List[Periodico]:
+    def obtener_periodicos_por_autor(
+        self, id_autor: UUID, skip: int = 0, limit: int = 100
+    ) -> List[Periodico]:
         """
-        Obtiene todos los periódicos de un autor específico.
-
-        Args:
-            id_autor: UUID del autor.
-
-        Returns:
-            Lista de periódicos del autor.
+        Obtiene todos los periódicos de un autor específico con paginación.
         """
-        return self.db.query(Periodico).filter(Periodico.id_autor == id_autor).all()
+        return (
+            self.db.query(Periodico)
+            .filter(Periodico.id_autor == id_autor)
+            .order_by(Periodico.fecha_material.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def obtener_periodicos_por_ciudad(self, ciudad_publicacion: str) -> List[Periodico]:
+    def obtener_periodicos_por_ciudad(
+        self, ciudad_publicacion: str, skip: int = 0, limit: int = 100
+    ) -> List[Periodico]:
         """
-        Obtiene todos los periódicos de una ciudad de publicación específica.
-
-        Args:
-            ciudad_publicacion: Ciudad de publicación a filtrar.
-
-        Returns:
-            Lista de periódicos de esa ciudad.
+        Obtiene periódicos de una ciudad específica (búsqueda parcial).
         """
         return (
             self.db.query(Periodico)
             .filter(Periodico.ciudad_publicacion.ilike(f"%{ciudad_publicacion}%"))
+            .order_by(Periodico.fecha_material.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
-    def obtener_periodicos_por_seccion(self, seccion_periodico: str) -> List[Periodico]:
+    def obtener_periodicos_por_seccion(
+        self, seccion_periodico: str, skip: int = 0, limit: int = 100
+    ) -> List[Periodico]:
         """
-        Obtiene todos los periódicos de una sección específica.
-
-        Args:
-            seccion_periodico: Sección a filtrar (deportes, política, etc.).
-
-        Returns:
-            Lista de periódicos de esa sección.
+        Obtiene periódicos de una sección específica (deportes, política, etc.).
         """
         return (
             self.db.query(Periodico)
             .filter(Periodico.seccion_periodico.ilike(f"%{seccion_periodico}%"))
+            .order_by(Periodico.fecha_material.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
-    def obtener_periodicos_disponibles(self) -> List[Periodico]:
+    def obtener_periodicos_disponibles(
+        self, skip: int = 0, limit: int = 100
+    ) -> List[Periodico]:
         """
         Obtiene todos los periódicos disponibles para préstamo.
-
-        Returns:
-            Lista de periódicos con disponibilidad_material en True.
         """
         return (
             self.db.query(Periodico)
             .filter(Periodico.disponibilidad_material == True)
+            .order_by(Periodico.fecha_material.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
-    def buscar_periodicos_por_titulo(self, titulo_periodico: str) -> List[Periodico]:
+    def buscar_periodicos_por_titulo(
+        self, titulo_periodico: str, skip: int = 0, limit: int = 100
+    ) -> List[Periodico]:
         """
-        Busca periódicos por título (búsqueda parcial, sin distinguir mayúsculas).
-
-        Args:
-            titulo_periodico: Texto a buscar en el título.
-
-        Returns:
-            Lista de periódicos que coinciden con el título.
+        Busca periódicos por título (búsqueda parcial).
         """
         return (
             self.db.query(Periodico)
             .filter(Periodico.titulo_material.ilike(f"%{titulo_periodico}%"))
+            .order_by(Periodico.titulo_material.desc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
