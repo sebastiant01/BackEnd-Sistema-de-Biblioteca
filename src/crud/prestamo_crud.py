@@ -73,14 +73,20 @@ class PrestamoCRUD:
             print(f"Error inesperado al crear el préstamo: {e}")
             return None
 
-    def obtener_todos_los_prestamos(self) -> List[Prestamo]:
+    def obtener_todos_los_prestamos(
+        self, skip: int = 0, limit: int = 100
+    ) -> List[Prestamo]:
         """
         Recupera el historial completo de todos los préstamos registrados en el sistema.
+
+        Args:
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Prestamo]: Lista de objetos Prestamo.
         """
-        return self.db.query(Prestamo).all()
+        return self.db.query(Prestamo).offset(skip).limit(limit).all()
 
     def consultar_prestamo_por_id(
         self, id_prestamo_ingresado: str
@@ -101,7 +107,7 @@ class PrestamoCRUD:
         )
 
     def consultar_prestamos_por_usuario(
-        self, id_usuario_ingresado: str
+        self, id_usuario_ingresado: str, skip: int = 0, limit: int = 100
     ) -> List[Prestamo]:
         """
         Recupera el historial completo de préstamos (activos e inactivos) de un
@@ -109,6 +115,8 @@ class PrestamoCRUD:
 
         Args:
             id_usuario_ingresado (str): ID del usuario a consultar.
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Prestamo]: Lista de préstamos asociados al usuario.
@@ -116,13 +124,15 @@ class PrestamoCRUD:
         prestamos = (
             self.db.query(Prestamo)
             .filter(Prestamo.id_usuario == id_usuario_ingresado)
+            .offset(skip)
+            .limit(limit)
             .all()
         )
         print(f"Se encontraron {len(prestamos)} préstamos para el usuario.")
         return prestamos
 
     def consultar_prestamos_activos_por_usuario(
-        self, id_usuario_ingresado: str
+        self, id_usuario_ingresado: str, skip: int = 0, limit: int = 100
     ) -> List[Prestamo]:
         """
         Filtra y recupera ÚNICAMENTE los préstamos que el usuario aún no ha devuelto
@@ -130,6 +140,8 @@ class PrestamoCRUD:
 
         Args:
             id_usuario_ingresado (str): ID del usuario a consultar.
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Prestamo]: Lista de préstamos activos del usuario.
@@ -139,11 +151,13 @@ class PrestamoCRUD:
             .filter(
                 Prestamo.id_usuario == id_usuario_ingresado, Prestamo.estado == "Activa"
             )
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
     def consultar_prestamos_por_material(
-        self, id_material_ingresado: str
+        self, id_material_ingresado: str, skip: int = 0, limit: int = 100
     ) -> List[Prestamo]:
         """
         Busca todos los préstamos asociados a un material específico.
@@ -151,6 +165,8 @@ class PrestamoCRUD:
 
         Args:
             id_material_ingresado (str): ID del material a consultar.
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Prestamo]: Lista de préstamos en los que ha participado el material.
@@ -158,6 +174,8 @@ class PrestamoCRUD:
         return (
             self.db.query(Prestamo)
             .filter(Prestamo.id_material == id_material_ingresado)
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
