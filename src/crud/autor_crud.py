@@ -73,14 +73,24 @@ class AutorCRUD:
             print(f"Error inesperado: {e}")
             return None
 
-    def obtener_todos_los_autores(self) -> List[Autor]:
+    def obtener_todos_los_autores(self, skip: int = 0, limit: int = 100) -> List[Autor]:
         """
         Recupera todos los autores que están actualmente activos en el sistema.
+
+        Args:
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Autor]: Lista de objetos Autor con activo == True.
         """
-        return self.db.query(Autor).filter(Autor.activo == True).all()
+        return (
+            self.db.query(Autor)
+            .filter(Autor.activo == True)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
     def consultar_autor_por_id(self, id_autor_ingresado: str) -> Optional[Autor]:
         """

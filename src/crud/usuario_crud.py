@@ -109,14 +109,20 @@ class UsuarioCRUD:
             print(f"Error de integridad (¿Documento o email repetido?): {e}")
             return None
 
-    def obtener_todos_los_usuarios(self) -> List[Usuario]:
+    def obtener_todos_los_usuarios(
+        self, skip: int = 0, limit: int = 100
+    ) -> List[Usuario]:
         """
         Recupera todos los usuarios registrados en la base de datos.
+
+        Args:
+            skip (int): Indica la posición desde donde se muestran los resultados de la base de datos. Por defecto en la posición 0
+            limit (int): Indica el máximo de resultados que se van a mostrar. Por defecto 100
 
         Returns:
             List[Usuario]: Lista de objetos Usuario.
         """
-        return self.db.query(Usuario).all()
+        return self.db.query(Usuario).offset(skip).limit(limit).all()
 
     def consultar_usuario_por_id(self, id_ingresado: str) -> Optional[Usuario]:
         """
