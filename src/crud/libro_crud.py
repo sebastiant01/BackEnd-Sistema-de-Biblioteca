@@ -150,9 +150,17 @@ class LibroCRUD:
         Returns:
             Lista de libros.
         """
-        return self.db.query(Libro).offset(skip).limit(limit).all()
+        return (
+            self.db.query(Libro)
+            .order_by(Libro.titulo_material.asc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def obtener_libros_por_autor(self, id_autor: UUID) -> List[Libro]:
+    def obtener_libros_por_autor(
+        self, id_autor: UUID, skip: int = 0, limit: int = 100
+    ) -> List[Libro]:
         """
         Obtiene todos los libros de un autor específico.
 
@@ -162,18 +170,36 @@ class LibroCRUD:
         Returns:
             Lista de libros del autor.
         """
-        return self.db.query(Libro).filter(Libro.id_autor == id_autor).all()
+        return (
+            self.db.query(Libro)
+            .filter(Libro.id_autor == id_autor)
+            .order_by(Libro.titulo_material.asc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def obtener_libros_disponibles(self) -> List[Libro]:
+    def obtener_libros_disponibles(
+        self, skip: int = 0, limit: int = 100
+    ) -> List[Libro]:
         """
         Obtiene todos los libros con disponibilidad_material en True.
 
         Returns:
             Lista de libros disponibles para préstamo.
         """
-        return self.db.query(Libro).filter(Libro.disponibilidad_material == True).all()
+        return (
+            self.db.query(Libro)
+            .filter(Libro.disponibilidad_material == True)
+            .order_by(Libro.titulo_material.asc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def buscar_libros_por_titulo(self, titulo: str) -> List[Libro]:
+    def buscar_libros_por_titulo(
+        self, titulo: str, skip: int = 0, limit: int = 100
+    ) -> List[Libro]:
         """
         Busca libros por título (búsqueda parcial, sin distinguir mayúsculas).
 
@@ -186,10 +212,15 @@ class LibroCRUD:
         return (
             self.db.query(Libro)
             .filter(Libro.titulo_material.ilike(f"%{titulo}%"))
+            .order_by(Libro.titulo_material.asc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
-    def buscar_libros_por_genero(self, genero: str) -> List[Libro]:
+    def buscar_libros_por_genero(
+        self, genero: str, skip: int = 0, limit: int = 100
+    ) -> List[Libro]:
         """
         Busca libros por género literario (búsqueda parcial).
 
@@ -200,7 +231,12 @@ class LibroCRUD:
             Lista de libros que coinciden con el género.
         """
         return (
-            self.db.query(Libro).filter(Libro.genero_libro.ilike(f"%{genero}%")).all()
+            self.db.query(Libro)
+            .filter(Libro.genero_libro.ilike(f"%{genero}%"))
+            .order_by(Libro.titulo_material.asc())
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
 
     def actualizar_libro(
