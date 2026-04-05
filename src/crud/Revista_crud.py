@@ -141,36 +141,60 @@ class RevistaCRUD:
         """
         return self.db.query(Revista).offset(skip).limit(limit).all()
 
-    def obtener_revistas_por_volumen(self, volumen: int) -> List[Revista]:
+    def obtener_revistas_por_volumen(
+        self, volumen: int, skip: int = 0, limit: int = 100
+    ) -> List[Revista]:
         """
         Obtener todas las revistas de un volumen específico.
 
         Args:
             volumen: Número de volumen a buscar.
+            skip:  Número de registros a omitir.
+            limit: Límite de registros a retornar.
 
         Returns:
             Lista de revistas del volumen indicado.
         """
-        return self.db.query(Revista).filter(Revista.volumen == volumen).all()
+        return (
+            self.db.query(Revista)
+            .filter(Revista.volumen == volumen)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def obtener_revistas_por_autor(self, id_autor: UUID) -> List[Revista]:
+    def obtener_revistas_por_autor(
+        self, id_autor: UUID, skip: int = 0, limit: int = 100
+    ) -> List[Revista]:
         """
         Obtener todas las revistas de un autor específico.
 
         Args:
             id_autor: UUID del autor.
+            skip:  Número de registros a omitir.
+            limit: Límite de registros a retornar.
 
         Returns:
             Lista de revistas del autor.
         """
-        return self.db.query(Revista).filter(Revista.id_autor == id_autor).all()
+        return (
+            self.db.query(Revista)
+            .filter(Revista.id_autor == id_autor)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def buscar_revistas_por_titulo(self, titulo: str) -> List[Revista]:
+    def buscar_revistas_por_titulo(
+        self, titulo: str, skip: int = 0, limit: int = 100
+    ) -> List[Revista]:
         """
         Buscar revistas por título (búsqueda parcial, sin distinguir mayúsculas).
 
         Args:
             titulo: Texto a buscar en el título.
+            skip:  Número de registros a omitir.
+            limit: Límite de registros a retornar.
 
         Returns:
             Lista de revistas que coinciden con el título.
@@ -178,18 +202,30 @@ class RevistaCRUD:
         return (
             self.db.query(Revista)
             .filter(Revista.titulo_material.ilike(f"%{titulo}%"))
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
-    def obtener_revistas_disponibles(self) -> List[Revista]:
+    def obtener_revistas_disponibles(
+        self, skip: int = 0, limit: int = 100
+    ) -> List[Revista]:
         """
         Obtener todas las revistas disponibles para préstamo.
+
+        Args:
+            skip:  Número de registros a omitir.
+            limit: Límite de registros a retornar.
 
         Returns:
             Lista de revistas con disponibilidad_material en True.
         """
         return (
-            self.db.query(Revista).filter(Revista.disponibilidad_material == True).all()
+            self.db.query(Revista)
+            .filter(Revista.disponibilidad_material == True)
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
 
     def actualizar_revista(

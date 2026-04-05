@@ -19,7 +19,6 @@ from src.database.config import get_db
 from src.crud.libro_crud import LibroCRUD
 from src.schemas.libro_schema import LibroCreate, LibroRead, LibroUpdate
 
-
 router = APIRouter(prefix="/libros", tags=["libros"])
 
 
