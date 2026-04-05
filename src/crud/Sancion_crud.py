@@ -103,29 +103,49 @@ class SancionCRUD:
         """
         return self.db.query(Sancion).offset(skip).limit(limit).all()
 
-    def obtener_sanciones_por_usuario(self, id_usuario: UUID) -> List[Sancion]:
+    def obtener_sanciones_por_usuario(
+        self, id_usuario: UUID, skip: int = 0, limit: int = 100
+    ) -> List[Sancion]:
         """
         Obtener todas las sanciones de un usuario específico
 
         Args:
             id_usuario: UUID del usuario
+            skip: Número de registros a omitir
+            limit: Límite de registros a retornar
 
         Returns:
             Lista de sanciones del usuario
         """
-        return self.db.query(Sancion).filter(Sancion.id_usuario == id_usuario).all()
+        return (
+            self.db.query(Sancion)
+            .filter(Sancion.id_usuario == id_usuario)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    def obtener_sanciones_por_prestamo(self, id_prestamo: UUID) -> List[Sancion]:
+    def obtener_sanciones_por_prestamo(
+        self, id_prestamo: UUID, skip: int = 0, limit: int = 100
+    ) -> List[Sancion]:
         """
         Obtener todas las sanciones asociadas a un préstamo específico
 
         Args:
             id_prestamo: UUID del préstamo
+            skip: Número de registros a omitir
+            limit: Límite de registros a retornar
 
         Returns:
             Lista de sanciones del préstamo
         """
-        return self.db.query(Sancion).filter(Sancion.id_prestamo == id_prestamo).all()
+        return (
+            self.db.query(Sancion)
+            .filter(Sancion.id_prestamo == id_prestamo)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
     def actualizar_sancion(
         self, sancion_id: UUID, id_usuario_edita: UUID = None, **kwargs
