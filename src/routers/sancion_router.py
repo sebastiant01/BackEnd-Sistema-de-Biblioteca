@@ -14,7 +14,7 @@ from uuid import UUID
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 
-from src.core.exceptions import NoEncontradoError, DatosInvalidosError
+from src.core.exceptions import NoEncontradoError
 from src.database.config import get_db
 from src.crud.Sancion_crud import SancionCRUD
 from src.schemas.sancion_schema import SancionCreate, SancionRead, SancionUpdate
@@ -96,21 +96,15 @@ def crear_sancion(
 
     Returns:
         La sanción recién creada con todos sus campos, incluido el UUID generado.
-
-    Raises:
-        DatosInvalidosError: Si los datos no son válidos (usuario o préstamo no existe, etc.).
     """
-    try:
-        return sancion_crud.crear_sancion(
-            id_usuario=body.id_usuario,
-            id_prestamo=body.id_prestamo,
-            fecha_inicio=body.fecha_inicio,
-            dias_sancion=body.dias_sancion,
-            motivo=body.motivo,
-            id_usuario_crea=body.id_usuario_crea,
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    return sancion_crud.crear_sancion(
+        id_usuario=body.id_usuario,
+        id_prestamo=body.id_prestamo,
+        fecha_inicio=body.fecha_inicio,
+        dias_sancion=body.dias_sancion,
+        motivo=body.motivo,
+        id_usuario_crea=body.id_usuario_crea,
+    )
 
 
 @router.put(path="/{id_sancion}", response_model=SancionRead)
@@ -135,17 +129,13 @@ def actualizar_sancion(
 
     Raises:
         NoEncontradoError: Si no existe una sanción con ese UUID.
-        DatosInvalidosError: Si los datos no son válidos.
     """
     id_usuario_edita = body.id_usuario_edita
     data = body.model_dump(exclude_unset=True, exclude={"id_usuario_edita"})
 
-    try:
-        sancion = sancion_crud.actualizar_sancion(
-            sancion_id=id_sancion, id_usuario_edita=id_usuario_edita, **data
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    sancion = sancion_crud.actualizar_sancion(
+        sancion_id=id_sancion, id_usuario_edita=id_usuario_edita, **data
+    )
 
     if not sancion:
         raise NoEncontradoError("Sancion")

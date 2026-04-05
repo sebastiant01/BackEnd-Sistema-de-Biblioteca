@@ -123,24 +123,18 @@ def crear_revista(
 
     Returns:
         La revista recién creada con todos sus campos, incluido el UUID generado.
-
-    Raises:
-        DatosInvalidosError: Si los datos no son válidos (código no empieza con R, etc.).
     """
-    try:
-        return revista_crud.crear_revista(
-            codigo_material=body.codigo_material,
-            titulo_material=body.titulo_material,
-            id_autor=body.id_autor,
-            volumen=body.volumen,
-            numero_edicion=body.numero_edicion,
-            id_usuario_crea=body.id_usuario_crea,
-            disponibilidad_material=body.disponibilidad_material,
-            descripcion_material=body.descripcion_material,
-            fecha_material=body.fecha_material,
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    return revista_crud.crear_revista(
+        codigo_material=body.codigo_material,
+        titulo_material=body.titulo_material,
+        id_autor=body.id_autor,
+        volumen=body.volumen,
+        numero_edicion=body.numero_edicion,
+        id_usuario_crea=body.id_usuario_crea,
+        disponibilidad_material=body.disponibilidad_material,
+        descripcion_material=body.descripcion_material,
+        fecha_material=body.fecha_material,
+    )
 
 
 @router.put(path="/{id_revista}", response_model=RevistaRead)
@@ -165,17 +159,13 @@ def actualizar_revista(
 
     Raises:
         NoEncontradoError: Si no existe una revista con ese UUID.
-        DatosInvalidosError: Si los datos no son válidos.
     """
     id_usuario_edita = body.id_usuario_edita
     data = body.model_dump(exclude_unset=True, exclude={"id_usuario_edita"})
 
-    try:
-        revista = revista_crud.actualizar_revista(
-            revista_id=id_revista, id_usuario_edita=id_usuario_edita, **data
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    revista = revista_crud.actualizar_revista(
+        revista_id=id_revista, id_usuario_edita=id_usuario_edita, **data
+    )
 
     if not revista:
         raise NoEncontradoError("Revista")

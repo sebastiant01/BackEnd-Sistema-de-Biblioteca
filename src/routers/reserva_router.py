@@ -14,7 +14,7 @@ from uuid import UUID
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 
-from src.core.exceptions import NoEncontradoError, DatosInvalidosError
+from src.core.exceptions import NoEncontradoError
 from src.database.config import get_db
 from src.crud.Reserva_crud import ReservaCRUD
 from src.schemas.reserva_schema import ReservaCreate, ReservaRead, ReservaUpdate
@@ -101,19 +101,13 @@ def crear_reserva(
 
     Returns:
         La reserva recién creada con todos sus campos, incluido el UUID generado.
-
-    Raises:
-        DatosInvalidosError: Si los datos no son válidos (material no disponible, etc.).
     """
-    try:
-        return reserva_crud.crear_reserva(
-            id_usuario=body.id_usuario,
-            id_material=body.id_material,
-            fecha_reserva=body.fecha_reserva,
-            id_usuario_crea=body.id_usuario_crea,
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    return reserva_crud.crear_reserva(
+        id_usuario=body.id_usuario,
+        id_material=body.id_material,
+        fecha_reserva=body.fecha_reserva,
+        id_usuario_crea=body.id_usuario_crea,
+    )
 
 
 @router.put(path="/{id_reserva}", response_model=ReservaRead)
@@ -138,17 +132,13 @@ def actualizar_reserva(
 
     Raises:
         NoEncontradoError: Si no existe una reserva con ese UUID.
-        DatosInvalidosError: Si los datos no son válidos.
     """
     id_usuario_edita = body.id_usuario_edita
     data = body.model_dump(exclude_unset=True, exclude={"id_usuario_edita"})
 
-    try:
-        reserva = reserva_crud.actualizar_reserva(
-            reserva_id=id_reserva, id_usuario_edita=id_usuario_edita, **data
-        )
-    except ValueError as e:
-        raise DatosInvalidosError(str(e))
+    reserva = reserva_crud.actualizar_reserva(
+        reserva_id=id_reserva, id_usuario_edita=id_usuario_edita, **data
+    )
 
     if not reserva:
         raise NoEncontradoError("Reserva")
