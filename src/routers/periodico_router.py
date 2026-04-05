@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from src.core.exceptions import NoEncontradoError, DatosInvalidosError
 from src.database.config import get_db
 from src.crud.periodico_crud import PeriodicoCRUD
-from src.schemas.libro_schema import PeriodicoCreate, PeriodicoRead, PeriodicoUpdate
+from src.schemas.periodico_schema import PeriodicoCreate, PeriodicoRead, PeriodicoUpdate
 
 router = APIRouter(prefix="/periodicos", tags=["periodicos"])
 
