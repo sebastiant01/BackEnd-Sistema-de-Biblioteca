@@ -2,13 +2,16 @@
 Manejadores de excepciones para la aplicación FastAPI.
 
 Centraliza el manejo de errores registrando handlers globales para:
-- AppException y sus subclases (errores de dominio de la aplicación).
-- ValueError (errores de validación no capturados por Pydantic).
-- Exception (cualquier error no previsto, retorna HTTP 500).
+- RequestValidationError: body inválido enviado por el cliente (HTTP 422).
+- AppException y sus subclases: errores de dominio de la aplicación.
+- ResponseValidationError: respuesta del servidor que no coincide con el esquema Pydantic (HTTP 500).
+- ValueError: errores de validación no capturados por Pydantic (HTTP 400).
+- Exception: cualquier error no previsto (HTTP 500).
 """
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import ResponseValidationError, RequestValidationError
 from src.core.exceptions import AppException
 
 
@@ -17,40 +20,98 @@ def registrar_error_handlers(app: FastAPI) -> None:
     Registra los manejadores de errores globales en la instancia de FastAPI.
 
     Cada handler captura un tipo de excepción y retorna una respuesta JSON
-    uniforme con los campos `mensaje` y `exito`.
+    uniforme con los campos `exito`, `mensaje` y, cuando aplica, `detalles`.
 
     Args:
         app: Instancia de la aplicación FastAPI sobre la que se registran
              los handlers.
     """
 
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
+        """
+        Maneja errores de validación en el body de la petición.
+
+        Se activa cuando Pydantic detecta que el JSON enviado por el cliente
+        es inválido: campos faltantes, tipos de datos incorrectos, etc.
+        Construye una lista de detalles con el campo afectado y el motivo
+        del fallo para facilitar la corrección en el cliente.
+
+        Retorna HTTP 422 con el campo `detalles` como lista de objetos
+        `{campo, mensaje}`.
+        """
+        detalles = []
+        for error in exc.errors():
+            detalles.append(
+                {"campo": " -> ".join(map(str, error["loc"])), "mensaje": error["msg"]}
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={
+                "exito": False,
+                "mensaje": "El cuerpo de la petición (body) no es válido.",
+                "detalles": detalles,
+            },
+        )
+
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
         """
         Maneja excepciones de dominio derivadas de AppException.
 
-        Retorna el código HTTP y el mensaje definidos en la excepción.
+        Retorna el código HTTP y el mensaje definidos en la excepción,
+        lo que permite que cada subclase controle su propia respuesta
+        (por ejemplo, NoEncontradoError → 404, DatosInvalidosError → 400).
         """
         return JSONResponse(
             status_code=exc.codigo_http,
             content={
-                "mensaje": exc.mensaje,
                 "exito": False,
+                "mensaje": exc.mensaje,
+            },
+        )
+
+    @app.exception_handler(ResponseValidationError)
+    async def validation_response_error_handler(
+        request: Request, exc: ResponseValidationError
+    ):
+        """
+        Maneja errores de validación en la respuesta generada por el servidor.
+
+        Se activa cuando el objeto retornado por un endpoint no satisface
+        el esquema Pydantic declarado en `response_model`, lo que indica
+        una inconsistencia entre el modelo ORM y el esquema de salida.
+        Incluye el detalle crudo de la excepción para facilitar el diagnóstico
+        en desarrollo.
+
+        Retorna HTTP 500 con el campo `detalles` como string descriptivo.
+        """
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "exito": False,
+                "mensaje": "Error: La base de datos devolvió campos que el esquema no reconoce o faltan campos obligatorios.",
+                "detalles": str(exc),
             },
         )
 
     @app.exception_handler(ValueError)
     async def value_error_handler(request: Request, exc: ValueError):
         """
-        Maneja errores de valor no capturados por Pydantic.
+        Maneja errores de valor no capturados por Pydantic ni por AppException.
 
+        Actúa como red de seguridad para ValueError lanzados directamente
+        en lógica de negocio que no usen la jerarquía de AppException.
         Retorna siempre HTTP 400 con el mensaje de la excepción.
         """
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
-                "mensaje": str(exc),
                 "exito": False,
+                "mensaje": str(exc),
             },
         )
 
@@ -59,12 +120,14 @@ def registrar_error_handlers(app: FastAPI) -> None:
         """
         Maneja cualquier excepción no prevista por los handlers anteriores.
 
-        Retorna HTTP 500 con un mensaje genérico para no exponer detalles internos.
+        Actúa como último recurso para errores inesperados. Retorna un
+        mensaje genérico para no exponer detalles internos al cliente.
+        Retorna HTTP 500.
         """
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
-                "mensaje": "Error interno del servidor",
                 "exito": False,
+                "mensaje": "Error interno del servidor",
             },
         )
