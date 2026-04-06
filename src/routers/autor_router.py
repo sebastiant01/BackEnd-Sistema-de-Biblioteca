@@ -64,6 +64,7 @@ def crear_autor(
         nombre_autor=body.nombre_autor,
         apellido_autor=body.apellido_autor,
         nacionalidad=body.nacionalidad,
+        id_usuario_sesion=body.id_usuario_crea,
     )
     return autor
 
@@ -72,14 +73,13 @@ def crear_autor(
 def actualizar_autor(
     id_autor: UUID,
     body: AutorUpdate,
-    id_usuario_edita: UUID,
     autor_crud: AutorCRUD = Depends(get_autor_crud),
 ) -> AutorRead:
     """
     Actualiza parcialmente la información de un autor y registra quién hace la edición.
     """
     datos_nuevos = body.model_dump(exclude_unset=True)
-    autor = autor_crud.actualizar_autor(id_autor, id_usuario_edita, datos_nuevos)
+    autor = autor_crud.actualizar_autor(id_autor, **datos_nuevos)
     if not autor:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Autor no encontrado"
