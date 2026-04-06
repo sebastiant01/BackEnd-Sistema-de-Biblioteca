@@ -9,7 +9,6 @@ class AutorCreate(BaseModel):
     apellido_autor: str
     nacionalidad: str
     activo: bool = True
-
     id_usuario_crea: UUID
 
 
@@ -18,7 +17,6 @@ class AutorUpdate(BaseModel):
     apellido_autor: Optional[str] = None
     nacionalidad: Optional[str] = None
     activo: Optional[bool] = None
-
     id_usuario_edita: UUID
 
 
