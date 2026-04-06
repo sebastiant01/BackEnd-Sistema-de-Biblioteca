@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import Column, ForeignKey, Date, String
+from sqlalchemy import Column, ForeignKey, Date, String, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -59,6 +59,13 @@ class Prestamo(Base, Auditoria):
 
     fecha_prestamo: Date = Column(Date, server_default=func.now())
     estado: str = Column(String, nullable=False, default="Activa")
+
+    __table_args__ = (
+        CheckConstraint(
+            "estado IN ('Activa', 'Devuelta', 'Atrasada')",
+            name="CK_Rol",
+        ),
+    )
 
     sancion_involucrada = relationship(
         "Sancion", back_populates="prestamo", foreign_keys="[Sancion.id_prestamo]"

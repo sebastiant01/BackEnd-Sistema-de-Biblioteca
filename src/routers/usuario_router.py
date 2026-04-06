@@ -132,6 +132,7 @@ def crear_usuario(
         telefono_nuevo=body.telefono,
         contrasena_nueva=body.contrasena,
         rol_nuevo=body.rol,
+        id_usuario_sesion=body.id_usuario_crea,
     )
     return usuario
 
@@ -140,14 +141,12 @@ def crear_usuario(
 def actualizar_usuario(
     id_usuario: UUID,
     body: UsuarioUpdate,
-    id_usuario_edita: UUID,
     usuario_crud: UsuarioCRUD = Depends(get_usuario_crud),
 ) -> UsuarioRead:
     """
     Actualiza parcialmente los datos de un usuario e inyecta la auditoría del editor.
     """
     datos_nuevos = body.model_dump(exclude_unset=True)
-    datos_nuevos["id_usuario_edita"] = id_usuario_edita
     usuario = usuario_crud.actualizar_usuario(id_usuario, **datos_nuevos)
     if not usuario:
         raise HTTPException(

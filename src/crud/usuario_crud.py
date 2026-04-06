@@ -87,6 +87,7 @@ class UsuarioCRUD:
         creador_id = id_usuario_sesion if id_usuario_sesion else nuevo_id_usuario
 
         nuevo_usuario = Usuario(
+            id_usuario=nuevo_id_usuario,
             nombre=nombre_nuevo,
             apellido=apellido_nuevo,
             documento=documento_nuevo,

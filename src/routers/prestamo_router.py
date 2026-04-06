@@ -113,7 +113,6 @@ def crear_prestamo(
 @router.put("/{id_prestamo}", response_model=PrestamoRead)
 def actualizar_prestamo(
     id_prestamo: UUID,
-    id_edita: UUID,
     body: PrestamoUpdate,
     prestamo_crud: PrestamoCRUD = Depends(get_prestamo_crud),
 ) -> PrestamoRead:
@@ -121,7 +120,7 @@ def actualizar_prestamo(
     Actualiza el estado de un préstamo (ej. marcar como devuelto) registrando quién hace el cambio.
     """
     prestamo_encontrado = prestamo_crud.actualizar_estado_prestamo(
-        id_prestamo, body.estado, id_edita
+        id_prestamo, body.estado, body.id_usuario_edita
     )
     if not prestamo_encontrado:
         raise HTTPException(
