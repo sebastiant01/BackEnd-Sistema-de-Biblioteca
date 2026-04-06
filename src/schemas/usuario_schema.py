@@ -12,7 +12,6 @@ class UsuarioCreate(BaseModel):
     telefono: str
     contrasena: str
     rol: str
-
     id_usuario_crea: Optional[UUID] = None
 
 
@@ -24,8 +23,7 @@ class UsuarioUpdate(BaseModel):
     telefono: Optional[str] = None
     contrasena: Optional[str] = None
     rol: Optional[str] = None
-
-    id_usuario_edita: Optional[UUID] = None
+    id_usuario_edita: UUID
 
 
 class UsuarioRead(BaseModel):

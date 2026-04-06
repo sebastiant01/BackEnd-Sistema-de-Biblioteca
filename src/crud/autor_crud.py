@@ -102,11 +102,7 @@ class AutorCRUD:
         Returns:
             Optional[Autor]: El autor encontrado, o None si no existe o está inactivo.
         """
-        return (
-            self.db.query(Autor)
-            .filter(Autor.id_autor == id_autor_ingresado, Autor.activo == True)
-            .first()
-        )
+        return self.db.query(Autor).filter(Autor.id_autor == id_autor_ingresado).first()
 
     def buscar_autor_por_nombre(self, termino_busqueda: str) -> List[Autor]:
         """
@@ -131,9 +127,7 @@ class AutorCRUD:
             .all()
         )
 
-    def actualizar_autor(
-        self, id_autor: str, id_usuario_sesion: str, **kwargs: Any
-    ) -> Optional[Autor]:
+    def actualizar_autor(self, id_autor: str, **kwargs: Any) -> Optional[Autor]:
         """
         Actualiza los campos de un autor de forma dinámica. Protege el campo 'id_autor'
         para evitar modificaciones accidentales en la llave primaria.
@@ -152,12 +146,9 @@ class AutorCRUD:
             print("Error: No se encontró el autor (o fue eliminado previamente) x_x")
             return None
 
-        # Actualización dinámica protegiendo el ID
         for key, value in kwargs.items():
             if hasattr(autor_encontrado, key) and key != "id_autor":
                 setattr(autor_encontrado, key, value)
-
-        autor_encontrado.id_usuario_edita = id_usuario_sesion
 
         try:
             self.db.commit()
