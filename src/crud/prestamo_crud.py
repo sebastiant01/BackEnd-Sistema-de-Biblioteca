@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.database import config
 from src.entities.Prestamo import Prestamo
+from src.entities.MaterialBiblioteca import MaterialBiblioteca
 
 
 class PrestamoCRUD:
@@ -50,6 +51,13 @@ class PrestamoCRUD:
                                 ocurre un error de integridad o de base de datos.
         """
         print(f"--- Generando préstamo para el material {id_material_prestado} ---")
+        material = (
+            self.db.query(MaterialBiblioteca)
+            .filter(MaterialBiblioteca.id_material == id_material_prestado)
+            .first()
+        )
+        if not material:
+            raise ValueError("Error: Material no encontrado o no existe.")
 
         nuevo_prestamo = Prestamo(
             id_usuario=id_usuario_cliente,
@@ -59,6 +67,8 @@ class PrestamoCRUD:
         )
 
         try:
+            material.disponibilidad_material = False
+
             self.db.add(nuevo_prestamo)
             self.db.commit()
             self.db.refresh(nuevo_prestamo)
