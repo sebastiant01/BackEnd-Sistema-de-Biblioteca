@@ -25,7 +25,7 @@ class AutorRead(BaseModel):
 
     id_autor: UUID
     nombre_autor: str
-    apellido_autor: str
+    apellido_autor: Optional[str] = None
     nacionalidad: str
     activo: bool
 
