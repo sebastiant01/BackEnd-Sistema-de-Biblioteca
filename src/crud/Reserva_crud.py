@@ -77,6 +77,7 @@ class ReservaCRUD:
             id_usuario_crea=id_usuario_crea,
             id_usuario_edita=None,
         )
+        material.disponibilidad_material = False
         self.db.add(reserva)
         self.db.commit()
         self.db.refresh(reserva)
