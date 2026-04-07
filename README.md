@@ -1,33 +1,53 @@
-# 📚 Backend-Sistema-De-Biblioteca
+# 📚 Backend — Sistema de Biblioteca
 
-Sistema de gestión de biblioteca desarrollado con Python y SQLAlchemy ORM, conectado a una base de datos PostgreSQL en la nube mediante Neon. Permite gestionar materiales bibliográficos (libros, revistas y periódicos), autores y usuarios a través de un menú interactivo en consola.
-
----
-
-## 🎥 Video demostrativo
-
-[Ver video en Google Drive](https://drive.google.com/file/d/1EC24wAs8_OfUtjiaeUPHPHCkHseHpRR3/view?usp=sharing)
+Backend de una API REST para la gestión de una biblioteca, desarrollado con **FastAPI** y **SQLAlchemy**, con base de datos **PostgreSQL** en Neon y migraciones gestionadas con **Alembic**.
 
 ---
 
-## 👥 Equipo
+## 🎬 Video demostrativo
 
-- Cristóbal Mejía Monsalve
-- Yulieth Tatiana Muñoz
-- Sebastián Torres Cárdenas
+> **[▶ Ver demostración de la API](https://drive.google.com/file/d/1vk7TvgSvqoMTgWyL_Ylm0YznWRKujL5A/view?usp=sharing)**
 
 ---
 
-## 🗂️ Estructura del proyecto
+## 👥 Equipo de desarrollo
+
+| Nombre |
+|---|
+| Cristóbal Mejía Monsalve |
+| Yulieth Tatiana Muñoz |
+| Sebastián Torres Cárdenas |
+
+---
+
+## 🛠️ Tecnologías
+
+- **Python 3.11+**
+- **FastAPI** — Framework web para la API REST
+- **SQLAlchemy** — ORM para el manejo de entidades y relaciones
+- **Alembic** — Migraciones de base de datos
+- **Pydantic** — Validación de esquemas de entrada y salida
+- **PostgreSQL (Neon)** — Base de datos en la nube
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
-Backend-Sistema-De-Biblioteca/
-├── alembic/
-│   ├── versions/          # Migraciones generadas
-│   ├── env.py             # Configuración de Alembic
-│   └── script.py.mako     # Plantilla de migraciones
+Backend-Sistema-de-Biblioteca/
+│
+├── migrations/                  # Migraciones de Alembic
+│   ├── versions/
+│   ├── env.py
+│   └── script.py.mako
+│
 ├── src/
-│   ├── crud/              # Operaciones CRUD por entidad
+│   ├── core/                    # Lógica transversal
+│   │   ├── error_handlers.py    # Manejadores globales de excepciones
+│   │   ├── exceptions.py        # Jerarquía de excepciones de dominio
+│   │   └── responses.py         # Esquema de respuesta estándar
+│   │
+│   ├── crud/                    # Operaciones de base de datos
 │   │   ├── autor_crud.py
 │   │   ├── libro_crud.py
 │   │   ├── periodico_crud.py
@@ -36,10 +56,11 @@ Backend-Sistema-De-Biblioteca/
 │   │   ├── Revista_crud.py
 │   │   ├── Sancion_crud.py
 │   │   └── usuario_crud.py
-│   ├── database/
-│   │   └── config.py      # Conexión a Neon y configuración de SQLAlchemy
-│   ├── entities/          # Modelos ORM (SQLAlchemy)
-│   │   ├── __init__.py
+│   │
+│   ├── database/                # Configuración de la base de datos
+│   │   └── config.py
+│   │
+│   ├── entities/                # Modelos ORM (SQLAlchemy)
 │   │   ├── Auditoria.py
 │   │   ├── Autor.py
 │   │   ├── Libro.py
@@ -50,52 +71,58 @@ Backend-Sistema-De-Biblioteca/
 │   │   ├── Revista.py
 │   │   ├── Sancion.py
 │   │   └── Usuario.py
-│   └── utils/
-│       └── security.py    # Hasheo y verificación de contraseñas
-├── .env.example           # Plantilla de variables de entorno
-├── .gitignore
-├── alembic.ini            # Configuración principal de Alembic
-├── main.py                # Punto de entrada y menú interactivo
-└── requirements.txt       # Dependencias del proyecto
+│   │
+│   ├── routers/                 # Endpoints de la API
+│   │   ├── autor_router.py
+│   │   ├── libro_router.py
+│   │   ├── periodico_router.py
+│   │   ├── prestamo_router.py
+│   │   ├── reserva_router.py
+│   │   ├── revista_router.py
+│   │   ├── sancion_router.py
+│   │   └── usuario_router.py
+│   │
+│   ├── schemas/                 # Esquemas Pydantic (request/response)
+│   │   ├── autor_schema.py
+│   │   ├── libro_schema.py
+│   │   ├── periodico_schema.py
+│   │   ├── prestamo_schema.py
+│   │   ├── reserva_schema.py
+│   │   ├── revista_schema.py
+│   │   ├── sancion_schema.py
+│   │   └── usuario_schema.py
+│   │
+│   └── utils/                   # Utilidades
+│       └── security.py          # Seguridad y autenticación (JWT)
+│
+├── app.py                       # Configuración de la aplicación FastAPI
+├── main.py                      # Punto de entrada
+├── alembic.ini                  # Configuración de Alembic
+├── requirements.txt
+└── .env.example
 ```
 
 ---
 
-## 🧩 Entidades
-
-| Entidad | Descripción |
-|---|---|
-| `Usuario` | Usuarios del sistema con roles `Admin` y `Usuario` |
-| `Autor` | Autores de los materiales bibliográficos |
-| `MaterialBiblioteca` | Entidad padre de los materiales (herencia por tabla unida) |
-| `Libro` | Subtipo de material con ISBN y género literario |
-| `Revista` | Subtipo de material con volumen y número de edición |
-| `Periodico` | Subtipo de material con ciudad y sección de publicación |
-| `Prestamo` | Registro de préstamos realizados por los usuarios |
-| `Reserva` | Reservas de materiales pendientes de disponibilidad |
-| `Sancion` | Restricciones temporales aplicadas a usuarios |
-
----
-
-## ⚙️ Instalación y ejecución
+## ⚙️ Instalación y configuración
 
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/Backend-Sistema-De-Biblioteca.git
+git clone https://github.com/sebastiant01/Backend-Sistema-De-Biblioteca.git
 cd Backend-Sistema-De-Biblioteca
 ```
 
-### 2. Crear y activar el entorno virtual
+### 2. Crear y activar un entorno virtual
 
 ```bash
-python -m venv .venv
+python -m venv venv
 
 # Windows
-.venv\Scripts\activate
+venv\Scripts\activate
 
-# Linux / Mac
-source .venv/bin/activate
+# Linux / macOS
+source venv/bin/activate
 ```
 
 ### 3. Instalar dependencias
@@ -106,46 +133,42 @@ pip install -r requirements.txt
 
 ### 4. Configurar variables de entorno
 
-Copia el archivo `.env.example` y renómbralo a `.env`, luego completa con tus credenciales de Neon:
+Copia el archivo de ejemplo y completa los valores:
 
 ```bash
 cp .env.example .env
 ```
 
-```env
-DATABASE_URL=postgresql+psycopg://usuario:contraseña@host/nombre_bd?sslmode=require&channel_binding=require
-```
+Edita `.env` con las credenciales de tu base de datos Neon y demás configuraciones necesarias.
+Nota: La URL de la base de datos está estructurada para psycopg3, de tener otra versión, cambiarla.
 
-### 5. Ejecutar el proyecto
+### 5. Ejecutar las migraciones
 
 ```bash
-python main.py
+alembic upgrade head
 ```
+
+### 6. Iniciar el servidor
+
+```bash
+uvicorn main:app --reload
+```
+
+La API estará disponible en `http://localhost:8000`.
+
+La documentación interactiva estará en `http://localhost:8000/docs`.
 
 ---
 
-## 🗄️ Migraciones con Alembic
+## 📌 Recursos principales de la API
 
-Para generar una nueva migración tras modificar un modelo:
-
-```bash
-python -m alembic revision --autogenerate -m "descripcion_del_cambio"
-python -m alembic upgrade head
-```
-
-Para verificar el estado actual:
-
-```bash
-python -m alembic current
-```
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-- **Python 3.12+**
-- **SQLAlchemy 2.0** — ORM y manejo de sesiones
-- **psycopg (psycopg3)** — Driver para PostgreSQL
-- **Neon** — Base de datos PostgreSQL en la nube
-- **Alembic** — Migraciones de base de datos
-- **python-dotenv** — Manejo de variables de entorno
+| Recurso | Prefijo |
+|---|---|
+| Autores | `/autores` |
+| Libros | `/libros` |
+| Periódicos | `/periodicos` |
+| Revistas | `/revistas` |
+| Usuarios | `/usuarios` |
+| Préstamos | `/prestamos` |
+| Reservas | `/reservas` |
+| Sanciones | `/sanciones` |
