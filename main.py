@@ -37,18 +37,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="Sistema De Biblioteca", version="1.0.0", lifespan=lifespan)
-origenes_permitidos = [
-    "http://localhost:4200",
-    "http://127.0.0.1:4200",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origenes_permitidos,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 registrar_error_handlers(app=app)
 
