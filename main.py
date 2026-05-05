@@ -13,6 +13,7 @@ from src.routers import (
     usuario_router,
     prestamo_router,
     periodico_router,
+    login_router,
 )
 from src.core.error_handlers import registrar_error_handlers
 
@@ -47,6 +48,7 @@ app.include_router(revista_router.router)
 app.include_router(prestamo_router.router)
 app.include_router(reserva_router.router)
 app.include_router(sancion_router.router)
+app.include_router(login_router.router)
 
 origins = [
     "http://localhost:4200",
