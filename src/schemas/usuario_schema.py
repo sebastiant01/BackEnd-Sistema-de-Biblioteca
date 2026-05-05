@@ -35,6 +35,7 @@ class UsuarioRead(BaseModel):
     documento: str
     email: EmailStr
     telefono: str
+    username: str
     rol: str
 
     fecha_creacion: datetime
