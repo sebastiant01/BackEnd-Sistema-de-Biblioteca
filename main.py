@@ -53,6 +53,7 @@ app.include_router(login_router.router)
 origins = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "https://biblioteca-d7ea1.web.app",
 ]
 
 app.add_middleware(
