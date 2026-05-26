@@ -8,8 +8,11 @@ from src.crud.usuario_crud import UsuarioCRUD
 from src.schemas.prestamo_schema import PrestamoCreate, PrestamoRead, PrestamoUpdate
 from src.routers.usuario_router import get_usuario_crud
 from src.database.config import get_db
+from src.utils.security import Security
 
 router = APIRouter(prefix="/prestamos", tags=["prestamos"])
+
+gestor_seguridad = Security()
 
 
 def get_prestamo_crud(db: Session = Depends(get_db)) -> PrestamoCRUD:
@@ -95,7 +98,12 @@ def obtener_prestamos_por_material(
     return prestamo_crud.consultar_prestamos_por_material(id_material, skip, limit)
 
 
-@router.post("", response_model=PrestamoRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=PrestamoRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def crear_prestamo(
     body: PrestamoCreate, prestamo_crud: PrestamoCRUD = Depends(get_prestamo_crud)
 ) -> PrestamoRead:
@@ -110,7 +118,11 @@ def crear_prestamo(
     return prestamo
 
 
-@router.put("/{id_prestamo}", response_model=PrestamoRead)
+@router.put(
+    "/{id_prestamo}",
+    response_model=PrestamoRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def actualizar_prestamo(
     id_prestamo: UUID,
     body: PrestamoUpdate,
@@ -129,7 +141,11 @@ def actualizar_prestamo(
     return prestamo_encontrado
 
 
-@router.delete("/{id_prestamo}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{id_prestamo}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def eliminar_prestamo(
     id_prestamo: UUID, prestamo_crud: PrestamoCRUD = Depends(get_prestamo_crud)
 ) -> None:
