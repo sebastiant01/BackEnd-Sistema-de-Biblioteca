@@ -18,8 +18,10 @@ from src.core.exceptions import NoEncontradoError, DatosInvalidosError
 from src.database.config import get_db
 from src.crud.Revista_crud import RevistaCRUD
 from src.schemas.revista_schema import RevistaCreate, RevistaRead, RevistaUpdate
+from src.utils.security import Security
 
 router = APIRouter(prefix="/revistas", tags=["revistas"])
+gestor_seguridad = Security()
 
 
 def get_revista_crud(db: Session = Depends(get_db)) -> RevistaCRUD:
@@ -110,7 +112,12 @@ def obtener_revista(
     return revista
 
 
-@router.post(path="/", response_model=RevistaRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    path="/", 
+    response_model=RevistaRead, 
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
 def crear_revista(
     body: RevistaCreate, revista_crud: RevistaCRUD = Depends(get_revista_crud)
 ) -> RevistaRead:
@@ -137,7 +144,12 @@ def crear_revista(
     )
 
 
-@router.put(path="/{id_revista}", response_model=RevistaRead)
+@router.put(
+    path="/{id_revista}",
+    response_model=RevistaRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+
+    )
 def actualizar_revista(
     id_revista: UUID,
     body: RevistaUpdate,
@@ -206,7 +218,11 @@ def actualizar_disponibilidad_revista(
     return revista
 
 
-@router.delete(path="/{id_revista}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete( 
+    path="/{id_revista}", 
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
 def eliminar_revista(
     id_revista: UUID, revista_crud: RevistaCRUD = Depends(get_revista_crud)
 ) -> None:
