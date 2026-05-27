@@ -18,8 +18,10 @@ from src.database.config import get_db
 
 from src.crud.libro_crud import LibroCRUD
 from src.schemas.libro_schema import LibroCreate, LibroRead, LibroUpdate
+from src.utils.security import Security
 
 router = APIRouter(prefix="/libros", tags=["libros"])
+gestor_seguridad = Security()
 
 
 def get_libro_crud(db: Session = Depends(get_db)) -> LibroCRUD:
@@ -137,7 +139,13 @@ def obtener_libros_autor(
     return libros
 
 
-@router.post(path="/", response_model=LibroRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    path="/", 
+    response_model=LibroRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+
+    )
 def crear_libro(
     body: LibroCreate, libro_crud: LibroCRUD = Depends(get_libro_crud)
 ) -> LibroRead:
@@ -164,7 +172,11 @@ def crear_libro(
     )
 
 
-@router.put(path="/{id_libro}", response_model=LibroRead)
+@router.put(
+    path="/{id_libro}",
+    response_model=LibroRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
 def actualizar_libro(
     id_libro: UUID, body: LibroUpdate, libro_crud: LibroCRUD = Depends(get_libro_crud)
 ) -> LibroRead:
@@ -228,7 +240,12 @@ def actualizar_disponibilidad_libro(
     return libro
 
 
-@router.delete(path="/{id_libro}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    path="/{id_libro}", 
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
+    
 def eliminar_libro(
     id_libro: UUID, libro_crud: LibroCRUD = Depends(get_libro_crud)
 ) -> None:
