@@ -18,8 +18,10 @@ from src.core.exceptions import NoEncontradoError
 from src.database.config import get_db
 from src.crud.Sancion_crud import SancionCRUD
 from src.schemas.sancion_schema import SancionCreate, SancionRead, SancionUpdate
+from src.utils.security import Security
 
 router = APIRouter(prefix="/sanciones", tags=["sanciones"])
+gestor_seguridad = Security()
 
 
 def get_sancion_crud(db: Session = Depends(get_db)) -> SancionCRUD:
@@ -83,7 +85,13 @@ def obtener_sancion(
     return sancion
 
 
-@router.post(path="/", response_model=SancionRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    path="/", 
+    response_model=SancionRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+
+    )
 def crear_sancion(
     body: SancionCreate, sancion_crud: SancionCRUD = Depends(get_sancion_crud)
 ) -> SancionRead:
@@ -107,7 +115,11 @@ def crear_sancion(
     )
 
 
-@router.put(path="/{id_sancion}", response_model=SancionRead)
+@router.put(
+    path="/{id_sancion}", 
+    response_model=SancionRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+ )
 def actualizar_sancion(
     id_sancion: UUID,
     body: SancionUpdate,
@@ -142,7 +154,12 @@ def actualizar_sancion(
     return sancion
 
 
-@router.delete(path="/{id_sancion}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    path="/{id_sancion}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+
+    )
 def eliminar_sancion(
     id_sancion: UUID, sancion_crud: SancionCRUD = Depends(get_sancion_crud)
 ) -> None:

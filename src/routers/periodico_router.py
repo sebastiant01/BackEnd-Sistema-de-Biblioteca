@@ -18,8 +18,10 @@ from src.core.exceptions import NoEncontradoError, DatosInvalidosError
 from src.database.config import get_db
 from src.crud.periodico_crud import PeriodicoCRUD
 from src.schemas.periodico_schema import PeriodicoCreate, PeriodicoRead, PeriodicoUpdate
+from src.utils.security import Security
 
 router = APIRouter(prefix="/periodicos", tags=["periodicos"])
+gestor_seguridad = Security()
 
 
 def get_periodico_crud(db: Session = Depends(get_db)) -> PeriodicoCRUD:
@@ -149,7 +151,10 @@ def obtener_periodicos_autor(
 
 
 @router.post(
-    path="/", response_model=PeriodicoRead, status_code=status.HTTP_201_CREATED
+    path="/", 
+    response_model=PeriodicoRead, 
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
 )
 def crear_periodico(
     body: PeriodicoCreate,
@@ -178,7 +183,11 @@ def crear_periodico(
     )
 
 
-@router.put(path="/{id_periodico}", response_model=PeriodicoRead)
+@router.put(
+    path="/{id_periodico}",
+    response_model=PeriodicoRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
 def actualizar_periodico(
     id_periodico: UUID,
     body: PeriodicoUpdate,
@@ -248,7 +257,12 @@ def actualizar_disponibilidad_periodico(
     return periodico
 
 
-@router.delete(path="/{id_periodico}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    path="/{id_periodico}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+    )
+    
 def eliminar_periodico(
     id_periodico: UUID,
     periodico_crud: PeriodicoCRUD = Depends(get_periodico_crud),
