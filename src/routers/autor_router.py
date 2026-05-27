@@ -6,8 +6,11 @@ from uuid import UUID
 from src.crud.autor_crud import AutorCRUD
 from src.database.config import get_db
 from src.schemas.autor_schema import AutorCreate, AutorRead, AutorUpdate
+from src.utils.security import Security
 
 router = APIRouter(prefix="/autores", tags=["autores"])
+
+gestor_seguridad = Security()
 
 
 def get_autor_crud(db: Session = Depends(get_db)) -> AutorCRUD:
@@ -53,7 +56,12 @@ def obtener_autor_por_id(
     return autor
 
 
-@router.post("", response_model=AutorRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=AutorRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def crear_autor(
     body: AutorCreate, autor_crud: AutorCRUD = Depends(get_autor_crud)
 ) -> AutorRead:
@@ -69,7 +77,11 @@ def crear_autor(
     return autor
 
 
-@router.put("/{id_autor}", response_model=AutorRead)
+@router.put(
+    "/{id_autor}",
+    response_model=AutorRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def actualizar_autor(
     id_autor: UUID,
     body: AutorUpdate,
@@ -87,7 +99,11 @@ def actualizar_autor(
     return autor
 
 
-@router.delete("/{id_autor}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{id_autor}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def eliminar_autor(
     id_autor: UUID,
     id_usuario_edita: UUID,

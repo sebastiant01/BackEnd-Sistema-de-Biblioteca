@@ -6,8 +6,11 @@ from src.schemas.usuario_schema import UsuarioCreate, UsuarioRead, UsuarioUpdate
 
 from src.crud.usuario_crud import UsuarioCRUD
 from src.database.config import get_db
+from src.utils.security import Security
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+
+gestor_seguridad = Security()
 
 
 def get_usuario_crud(db: Session = Depends(get_db)) -> UsuarioCRUD:
@@ -117,7 +120,12 @@ def obtener_usuario_por_telefono(
     return usuario
 
 
-@router.post("", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=UsuarioRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def crear_usuario(
     body: UsuarioCreate, usuario_crud: UsuarioCRUD = Depends(get_usuario_crud)
 ) -> UsuarioRead:
@@ -137,7 +145,11 @@ def crear_usuario(
     return usuario
 
 
-@router.put("/{id_usuario}", response_model=UsuarioRead)
+@router.put(
+    "/{id_usuario}",
+    response_model=UsuarioRead,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def actualizar_usuario(
     id_usuario: UUID,
     body: UsuarioUpdate,
@@ -155,7 +167,11 @@ def actualizar_usuario(
     return usuario
 
 
-@router.delete("/{id_usuario}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{id_usuario}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(gestor_seguridad.verificar_admin)],
+)
 def eliminar_usuario(
     id_usuario: UUID, usuario_crud: UsuarioCRUD = Depends(get_usuario_crud)
 ) -> None:
